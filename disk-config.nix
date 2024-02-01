@@ -1,7 +1,7 @@
 {
   disko.devices = {
     disk = {
-      vdb = {
+      980pro = {
         type = "disk";
         device = "/dev/sda";
         content = {
@@ -20,7 +20,7 @@
               };
             };
             root = {
-              end = "-8GiB";
+              end = "-32GiB";
               content = {
                 type = "btrfs";
                 extraArgs = [ "-f" ]; # Override existing partition

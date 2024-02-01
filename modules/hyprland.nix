@@ -24,7 +24,10 @@ in
       trusted-public-keys = [ "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc=" ];
     };
     # Hyprland
-    programs.hyprland.enable = true;
+    programs.hyprland = {
+      enable = true;
+      # package = hyprland.packages.${pkgs.system}.hyprland;
+    };
 
     # Light daemon support for backlight
     programs.light.enable = true;
