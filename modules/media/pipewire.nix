@@ -1,10 +1,10 @@
 { lib, config, pkgs, ... }:
 with lib;
 let
-  cfg = config.custom.pipewire;
+  cfg = config.custom.media.pipewire;
 in
 {
-  options.custom.pipewire = {
+  options.custom.media.pipewire = {
     enable = mkEnableOption "Enable pipewire and necessary programs";
   };
 
@@ -29,6 +29,10 @@ in
         # no need to redefine it in your config for now)
         #media-session.enable = true;
       };
+
+      environment.systemPackages = with pkgs; [
+        pavucontrol
+      ];
     };
 }
 

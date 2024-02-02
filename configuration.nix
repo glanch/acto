@@ -19,11 +19,13 @@ in
       ./modules/nextcloud-backup-sink.nix
       ./modules/zaphod-backup-sink.nix
       ./modules/hyprland.nix
-      ./modules/pipewire.nix
+      ./modules/media
       ./modules/nix-path.nix
       ./modules/vscodium.nix
-      ./modules/firefox.nix
       ./modules/nur.nix
+      ./modules/firefox.nix
+      ./modules/gaming/minecraft.nix
+      ./modules/gaming/steam.nix
     ];
 
   # Enable flakes
@@ -82,13 +84,24 @@ in
   services.xserver.desktopManager.gnome.enable = true;
 
   # Enable pipewire setup
-  custom.pipewire.enable = true;
+  custom.media.pipewire.enable = true;
+
+  # Enable spotify
+  custom.media.spotify.enable = true;
 
   # Enable vscodium setup
   custom.vscodium.enable = true;
   
   # Enable custom firefox setup
   custom.firefox.enable = true;
+
+  
+  ## Gaming
+  # Enable custom Minecraft setup
+  custom.gaming.minecraft.enable = true;
+  
+  # Enable custom Minecraft setup
+  custom.gaming.steam.enable = true;
 
   # Enable kvm
   virtualisation.libvirtd.enable = true;
@@ -128,6 +141,7 @@ in
       signal-desktop
       direnv
       nixpkgs-fmt
+      htop
     ];
     #shell = pkgs.zsh;
   };

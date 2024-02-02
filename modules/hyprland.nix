@@ -43,7 +43,7 @@ in
     };
 
     # Fonts for hyprland theme
-    fonts.fonts = with pkgs; [
+    fonts.packages = with pkgs; [
       font-awesome
       (nerdfonts.override { fonts = [ "FiraCode" "Agave" "Hack" "DroidSansMono" ]; }) # Fonts for waybar
     ];
