@@ -16,10 +16,9 @@ in
       agenix.nixosModules.default
       disko.nixosModules.default
       ./disk-config.nix
-      ./modules/nextcloud-backup-sink.nix
-      ./modules/zaphod-backup-sink.nix
       ./modules/hyprland.nix
       ./modules/media
+      ./modules/communication
       ./modules/nix-path.nix
       ./modules/vscodium.nix
       ./modules/nur.nix
@@ -83,14 +82,24 @@ in
   services.xserver.displayManager.gdm.enable = true;
   services.xserver.desktopManager.gnome.enable = true;
 
+  ## Media
   # Enable pipewire setup
   custom.media.pipewire.enable = true;
 
   # Enable spotify
   custom.media.spotify.enable = true;
 
+  ## Communication
+  custom.communication = {
+    telegram.enable = true;
+    signal.enable = true;
+    teamspeak.enable = true;
+  };
+
+  ## Development
   # Enable vscodium setup
   custom.vscodium.enable = true;
+  
   
   # Enable custom firefox setup
   custom.firefox.enable = true;
@@ -138,7 +147,6 @@ in
       freecad
       chromium
       mattermost-desktop
-      signal-desktop
       direnv
       nixpkgs-fmt
       htop
