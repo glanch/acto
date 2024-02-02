@@ -5,8 +5,11 @@
   inputs.agenix.url = "github:ryantm/agenix";
   inputs.hyprland.url = "github:hyprwm/Hyprland";
   inputs.disko.url = "github:nix-community/disko";
+  inputs.nix-vscode-extensions.url = "github:nix-community/nix-vscode-extensions";
+  inputs.nur.url = github:nix-community/NUR;
+  inputs.firefox-addons.url = "gitlab:rycee/nur-expressions?dir=pkgs/firefox-addons";
 
-  outputs = { self, nixpkgs, home-manager, deploy-rs, agenix, disko, hyprland, ... }@attrs: {
+  outputs = { self, nixpkgs, home-manager, deploy-rs, agenix, disko, hyprland, nix-vscode-extensions, nur, firefox-addons, ... }@attrs: {
     nixosConfigurations."acto" = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       specialArgs = attrs;

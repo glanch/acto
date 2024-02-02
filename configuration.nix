@@ -2,7 +2,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running `nixos-help`).
 
-{ config, pkgs, home-manager, agenix, disko, ... }:
+{ config, pkgs, home-manager, agenix, disko, nur, ... }:
 
 let
   sshPubKey = builtins.readFile ./id_rsa.pub;
@@ -21,6 +21,9 @@ in
       ./modules/hyprland.nix
       ./modules/pipewire.nix
       ./modules/nix-path.nix
+      ./modules/vscodium.nix
+      ./modules/firefox.nix
+      ./modules/nur.nix
     ];
 
   # Enable flakes
@@ -81,6 +84,12 @@ in
   # Enable pipewire setup
   custom.pipewire.enable = true;
 
+  # Enable vscodium setup
+  custom.vscodium.enable = true;
+  
+  # Enable custom firefox setup
+  custom.firefox.enable = true;
+
   # Enable kvm
   virtualisation.libvirtd.enable = true;
 
@@ -108,7 +117,6 @@ in
       mixxx
       #minecraft
       #prismlauncher
-      #vscodium
       #git
       #nixfmt
       rnix-lsp
