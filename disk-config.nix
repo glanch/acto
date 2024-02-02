@@ -1,9 +1,9 @@
 {
   disko.devices = {
     disk = {
-      vdb = {
+      samsung970evoplus = {
         type = "disk";
-        device = "/dev/vdb";
+        device = "/dev/nvme0n1";
         content = {
           type = "gpt";
           partitions = {
@@ -49,7 +49,7 @@
                     };
                     "/swap" = {
                       mountpoint = "/.swapvol";
-                      swap.swapfile.size = "20M";
+                      swap.swapfile.size = "32G";
                     };
                   };
                 };
