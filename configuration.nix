@@ -6,9 +6,11 @@
 
 let
   sshPubKey = builtins.readFile ./id_rsa.pub;
-in {
+in
+{
   imports =
-    [ # Include the results of the hardware scan.
+    [
+      # Include the results of the hardware scan.
       ./hardware-configuration.nix
       home-manager.nixosModules.default
       agenix.nixosModules.default
@@ -21,8 +23,45 @@ in {
       ./modules/nix-path.nix
     ];
 
+  # Enable flakes
+  nix.settings.experimental-features = [ "nix-command" "flakes" ];
+
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
+
+  # Bootloader
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.canTouchEfiVariables = true;
+  boot.loader.efi.efiSysMountPoint = "/boot/efi";
+
+  networking.hostName = "acto"; # Define your hostname
+
+  # WiFi
+  networking.networkmanager.enable = true; # Easiest to use and most distros use this by default.
+
+  # Set your time zone.
+  time.timeZone = "Europe/Berlin";
+
+  # Select internationalisation properties.
+  i18n.defaultLocale = "en_US.UTF-8";
+  console = {
+    font = "Lat2-Terminus16";
+    # keyMap = "de";
+    useXkbConfig = true; # use xkbOptions in tty.
+  };
+
+  # TODO: find out if these are necessary
+  i18n.extraLocaleSettings = {
+    LC_ADDRESS = "de_DE.UTF-8";
+    LC_IDENTIFICATION = "de_DE.UTF-8";
+    LC_MEASUREMENT = "de_DE.UTF-8";
+    LC_MONETARY = "de_DE.UTF-8";
+    LC_NAME = "de_DE.UTF-8";
+    LC_NUMERIC = "de_DE.UTF-8";
+    LC_PAPER = "de_DE.UTF-8";
+    LC_TELEPHONE = "de_DE.UTF-8";
+    LC_TIME = "de_DE.UTF-8";
+  };
 
   # Enable hyprland setup
   custom.hyprland.enable = true;
@@ -30,73 +69,65 @@ in {
   # Enable the X11 windowing system.
   services.xserver.enable = true;
 
+  # Configure keymap in X11
+  services.xserver = {
+    layout = "de";
+    xkbVariant = "";
+  };
+
   # Enable the GNOME Desktop Environment.
   services.xserver.displayManager.gdm.enable = true;
   services.xserver.desktopManager.gnome.enable = true;
-  # Enable flakes
-  nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
-  # Use the systemd-boot EFI boot loader.
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
+  # Enable pipewire setup
+  custom.pipewire.enable = true;
 
-  networking.hostName = "remote-data-store"; # Define your hostname.
-  # Pick only one of the below networking options.
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-  # networking.networkmanager.enable = true;  # Easiest to use and most distros use this by default.
+  # Enable kvm
+  virtualisation.libvirtd.enable = true;
 
-  # Set your time zone.
-  time.timeZone = "Europe/Amsterdam";
-
-  # Configure network proxy if necessary
-  # networking.proxy.default = "http://user:password@proxy:port/";
-  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
-
-  # Select internationalisation properties.
-  # i18n.defaultLocale = "en_US.UTF-8";
-  # console = {
-  #   font = "Lat2-Terminus16";
-  #   keyMap = "us";
-  #   useXkbConfig = true; # use xkbOptions in tty.
-  # };
-
-  # Enable the X11 windowing system.
-  # services.xserver.enable = true;
-
-  # Configure keymap in X11
-  # services.xserver.layout = "us";
-  # services.xserver.xkbOptions = "eurosign:e,caps:escape";
-
-  # Enable CUPS to print documents.
-  # services.printing.enable = true;
-
-  # Enable sound.
-  # sound.enable = true;
-  # hardware.pulseaudio.enable = true;
-
-  # Enable touchpad support (enabled default in most desktopManager).
-  # services.xserver.libinput.enable = true;
 
   users.mutableUsers = false;
 
+  # Root user
   users.users.root.openssh.authorizedKeys.keys = [
-      sshPubKey
+    sshPubKey
   ];
 
+  # My user account
   users.users.christopher = {
     isNormalUser = true;
-    hashedPassword = "$y$j9T$sQh6gLkaqd1X4G5BeQ4jp/$5NtPCBB9BFS/RhzN7QllypRTwzOcgwLX1j/PqnXiSm6";
+    hashedPassword = "$6$fSedKlaWglw6hfXh$EU5D6BmYiEi7AD9qCJ.I.LpZ/Qjn.7KfezDWr007BPvvOTDYLtFLZVN2p7r8fQFnJ3c.9.AtMPfamFrRNIkUU/";
 
-#    shell = pkgs.zsh;
+    #    shell = pkgs.zsh;
     openssh.authorizedKeys.keys = [
       sshPubKey
     ];
-    extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
+    extraGroups = [ "wheel" "lock" "dialout" "plugdev" "networkmanager" "audio" "vboxusers" "libvirtd" "adbusers" ];
+    packages = with pkgs; [
+      firefox
+      vim
+      mixxx
+      #minecraft
+      #prismlauncher
+      #vscodium
+      #git
+      #nixfmt
+      rnix-lsp
+      clang-tools_15
+      virt-manager
+      freecad
+      chromium
+      mattermost-desktop
+      signal-desktop
+      direnv
+      nixpkgs-fmt
+    ];
+    #shell = pkgs.zsh;
   };
 
   home-manager.users.christopher = { pkgs, ... }: {
     home = {
-      stateVersion = "22.05";
+      stateVersion = "23.11";
       packages = [ ];
     };
 
@@ -110,7 +141,7 @@ in {
     };
 
     programs.bash.enable = false;
-  };  
+  };
 
   # List packages installed in system profile. To search, run:
   # $ nix search wget
@@ -140,7 +171,7 @@ in {
   # networking.firewall.allowedTCPPorts = [ ... ];
   # networking.firewall.allowedUDPPorts = [ ... ];
   # Or disable the firewall altogether.
-  networking.firewall.enable = false;
+  networking.firewall.enable = true;
 
   # Copy the NixOS configuration file and link it from the resulting system
   # (/run/current-system/configuration.nix). This is useful in case you
@@ -153,22 +184,7 @@ in {
   # this value at the release version of the first install of this system.
   # Before changing this value read the documentation for this option
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
-  system.stateVersion = "23.05"; # Did you read the comment?
-
-  # Enable auto upgrades from current main branch on remote
-  system.autoUpgrade = {
-    enable = true;
-    flake = "github:glanch/remote-data-store";
-    dates = "03:00";
-    allowReboot = true;
-  };
-
-  # Add Garbage Collection
-  nix.gc = {
-    automatic = true;
-    dates = "daily";
-    options = "--delete-older-than 5d";
-  };
+  system.stateVersion = "23.11"; # Did you read the comment?
 }
 
 

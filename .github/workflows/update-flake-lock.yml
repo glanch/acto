@@ -20,7 +20,7 @@ jobs:
           pr-labels: | # Labels to be set on the PR
             dependencies
             automated
-      - run: nix build .#nixosConfigurations.remote-data-store.config.system.build.toplevel # Build system configuration
+      - run: nix build .#nixosConfigurations.acto.config.system.build.toplevel # Build system configuration
       - name: Enable Pull Request Automerge # Automerge
         run: gh pr merge --merge --auto "${{ steps.cpr.outputs.pull-request-number }}"
         env:

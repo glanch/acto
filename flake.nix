@@ -7,19 +7,19 @@
   inputs.disko.url = "github:nix-community/disko";
 
   outputs = { self, nixpkgs, home-manager, deploy-rs, agenix, disko, hyprland, ... }@attrs: {
-    nixosConfigurations."remote-data-store" = nixpkgs.lib.nixosSystem {
+    nixosConfigurations."acto" = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       specialArgs = attrs;
       modules = [ ./configuration.nix];
     };
-    deploy.nodes.remote-data-store = {
-      hostname = "remote-data-store.fritz.box";
+    deploy.nodes.acto = {
+      hostname = "acto.fritz.box";
       fastConnection = true;
       profiles = {
         system = {
           sshUser = "root";
           path =
-            deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations."remote-data-store";
+            deploy-rs.lib.x86_64-linux.activate.nixos self.nixosConfigurations."acto";
           user = "root";
         };
       };

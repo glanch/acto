@@ -13,4 +13,4 @@ jobs:
         uses: actions/checkout@v2
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@v1
-      - run: nix build .#nixosConfigurations.remote-data-store.config.system.build.toplevel
+      - run: nix build .#nixosConfigurations.acto.config.system.build.toplevel
