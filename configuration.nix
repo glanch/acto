@@ -25,6 +25,7 @@ in
       ./modules/firefox.nix
       ./modules/gaming/minecraft.nix
       ./modules/gaming/steam.nix
+      ./modules/vfio
     ];
 
   # Enable flakes
@@ -112,9 +113,10 @@ in
   # Enable custom Minecraft setup
   custom.gaming.steam.enable = true;
 
+  ## Virtualization
   # Enable kvm
-  virtualisation.libvirtd.enable = true;
-
+  # virtualisation.libvirtd.enable = false;
+  custom.vfio.enable = true;
 
   users.mutableUsers = false;
 
