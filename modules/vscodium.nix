@@ -16,7 +16,7 @@ in
           package = pkgs.vscodium;
         };
       };
-
+    
       users.users.christopher = {
         packages = with pkgs; [
           nil

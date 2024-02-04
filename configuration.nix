@@ -25,7 +25,7 @@ in
       ./modules/firefox.nix
       ./modules/gaming/minecraft.nix
       ./modules/gaming/steam.nix
-      ./modules/vfio
+      # ./modules/vfio
     ];
 
   # Enable flakes
@@ -116,7 +116,7 @@ in
   ## Virtualization
   # Enable kvm
   # virtualisation.libvirtd.enable = false;
-  custom.vfio.enable = true;
+  # custom.vfio.enable = false;
 
   users.mutableUsers = false;
 
@@ -139,22 +139,18 @@ in
       firefox
       vim
       mixxx
-      #minecraft
-      #prismlauncher
-      #git
-      #nixfmt
       rnix-lsp
       clang-tools_15
       virt-manager
-      freecad
       chromium
-      mattermost-desktop
       direnv
       nixpkgs-fmt
       htop
     ];
     #shell = pkgs.zsh;
   };
+
+  programs.corectrl.enable = true;
 
   home-manager.users.christopher = { pkgs, ... }: {
     home = {
