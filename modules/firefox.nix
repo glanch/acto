@@ -80,7 +80,7 @@ in
                   "browser.newtabpage.activity-stream.system.showSponsored" = lock-false;
                   "browser.newtabpage.activity-stream.showSponsoredTopSites" = lock-false;
                 };
-              extensions = with config.nur.repos.rycee.firefox-addons; [ ublock-origin bitwarden darkreader ];
+              extensions = with config.nur.repos.rycee.firefox-addons; [ ublock-origin bitwarden darkreader multi-account-containers ];
               containers = {
                 "Dangerous" = {
                   color = "red";
@@ -91,6 +91,12 @@ in
                   color = "blue";
                   icon = "cart";
                   id = 1;
+                };
+
+                "Discord" = {
+                  color = "blue";
+                  icon = "fingerprint";
+                  id = 3;
                 };
               };
 
