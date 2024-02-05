@@ -5,26 +5,23 @@
 { config, pkgs, home-manager, agenix, disko, nur, ... }:
 
 let
-  sshPubKey = builtins.readFile ./id_rsa.pub;
+  sshPubKey = builtins.readFile ./identities/acto/christopher.pub;
 in
 {
   imports =
     [
-      # Include the results of the hardware scan.
-      ./hardware-configuration.nix
       home-manager.nixosModules.default
       agenix.nixosModules.default
       disko.nixosModules.default
-      ./disk-config.nix
+      ./hardware-configuration.nix
       ./modules/hyprland.nix
       ./modules/media
+      ./modules/gaming
       ./modules/communication
       ./modules/nix-path.nix
       ./modules/vscodium.nix
       ./modules/nur.nix
       ./modules/firefox.nix
-      ./modules/gaming/minecraft.nix
-      ./modules/gaming/steam.nix
       # ./modules/vfio
     ];
 
@@ -95,6 +92,7 @@ in
     telegram.enable = true;
     signal.enable = true;
     teamspeak.enable = true;
+    matrix.enable = true;
   };
 
   ## Development
