@@ -4,10 +4,6 @@ let
   cfg = config.custom.media.playerctl;
 in
 {
-  imports = [
-    ./nur.nix
-  ];
-
   options.custom.media.playerctl = {
     enable = mkEnableOption "Enable playerctl setup";
   };

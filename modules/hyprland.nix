@@ -154,7 +154,7 @@ in
             }
 
             animations {
-                enabled = no
+                enabled = yes
 
                 # Some default animations, see https://wiki.hyprland.org/Configuring/Animations/ for more
 
@@ -195,7 +195,7 @@ in
             bind = $mainMod, Q, exec, alacritty
             bind = $mainMod SHIFT, Q, killactive,
             bind = $mainMod SHIFT ALT, Q, exit,
-            bind = $mainMod, E, exec, dolphin
+            bind = $mainMod, E, exec, nautilus
             bind = $mainMod, space, togglefloating,
             bind = $mainMod, D, exec, fuzzel
             bind = $mainMod, P, pseudo, # dwindle
