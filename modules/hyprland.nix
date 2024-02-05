@@ -218,7 +218,12 @@ in
             # Brightness control
             bind=,XF86MonBrightnessDown,exec, light -U ${brightnessDecreaseStep}
             bind=,XF86MonBrightnessUp,exec, light -A ${brightnessIncreaseStep}
-        
+
+
+            # Scratchpad
+            bind=$mainMod SHIFT,T,movetoworkspace,special:T
+            bind=$mainMod,T,togglespecialworkspace,T
+            
             # Lower and raise volume with hold 
             binde=, XF86AudioLowerVolume, exec, wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ ${audioDecreasePercent}%-
             binde=, XF86AudioRaiseVolume, exec, wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ ${audioIncreasePercent}%+
@@ -231,7 +236,6 @@ in
 
             # Mute default output on Fn+F12
             binde=Mod5, F12, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
-        
         '';
 
       programs.waybar = {

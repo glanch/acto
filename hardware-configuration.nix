@@ -9,11 +9,12 @@
       (modulesPath + "/installer/scan/not-detected.nix")
       ./modules/hardware/msi-pro-x670-p.nix
       ./modules/hardware/disk-config.nix
+      ./modules/hardware/nvidia.nix
     ];
 
   boot.initrd.availableKernelModules = [ "ahci" "nvme" "xhci_pci" "usb_storage" "usbhid" "sd_mod" ];
 
-  boot.kernelModules = [ "kvm-amd" "nvidia" ];
+  boot.kernelModules = [ "kvm-amd" ];
   boot.kernelParams = [ "amd_iommu=on" ];
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
