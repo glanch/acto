@@ -12,6 +12,7 @@ in
 
   imports = [
     ./hyprpaper.nix
+    ./media/playerctl.nix
   ];
 
   # Declare what settings a user of this "hello.nix" module CAN SET.
@@ -47,6 +48,10 @@ in
         grimblast # Screenshot
       ];
     };
+
+
+    # Enable playerctl
+    custom.media.playerctl.enable = true;
 
     # Fonts for hyprland theme
     fonts.packages = with pkgs; [
@@ -218,9 +223,14 @@ in
             binde=, XF86AudioLowerVolume, exec, wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ ${audioDecreasePercent}%-
             binde=, XF86AudioRaiseVolume, exec, wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ ${audioIncreasePercent}%+
 
-            # Mute output and mute input toggle 
-            binde=, XF86AudioMute, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
-            binde=, XF86AudioMicMute, exec, wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
+
+            # Previous/Play-Pause/Forward on AltGr+(F7/F8/F9)
+            binde=Mod5, F7, exec, playerctl previous
+            binde=Mod5, F8, exec, playerctl play-pause
+            binde=Mod5, F9, exec, playerctl next
+
+            # Mute default output on Fn+F12
+            binde=Mod5, F12, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
         
         '';
 
