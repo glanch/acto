@@ -4,15 +4,15 @@ let
   cfg = config.custom.hyprpaper;
   hyprpaperConfiguration = pkgs.writeText "hyprpaper.conf" ''
   preload = ${cfg.wallpaperFile}
-  wallpaper = ${cfg.target},${cfg.wallpaperFile}
+  ${lib.strings.concatLines (builtins.map (t: "wallpaper=${t},${cfg.wallpaperFile}") cfg.target)}
   '';
 in
 {
   options.custom.hyprpaper = {
     enable = mkEnableOption "Enable hyprpaper and apply usual config";
     target = mkOption {
-      type = types.str;
-      default = "eDP-1";
+      type = types.listOf types.str;
+      default = ["eDP-1"];
     };
 
     wallpaperFile = mkOption {

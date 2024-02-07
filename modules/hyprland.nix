@@ -63,10 +63,10 @@ in
     custom.hyprpaper.enable = true;
 
     # Set display targetwallpapers
-    custom.hyprpaper.target = "eDP-1";
+    custom.hyprpaper.target = ["DP-2" "HDMI-A-1"];
 
     # Set wallpaper
-    custom.hyprpaper.wallpaperFile = "${../assets/wallpapers/ICE3.jpeg}";
+    custom.hyprpaper.wallpaperFile = "${../assets/wallpapers/LatourdeCarol.jpg}";
 
     # Configure everything with homemanager
     home-manager.users.christopher = { ... }: {

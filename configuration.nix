@@ -22,7 +22,7 @@ in
       ./modules/vscodium.nix
       ./modules/nur.nix
       ./modules/firefox.nix
-      # ./modules/vfio
+      ./modules/virtualisation
     ];
 
   # Enable flakes
@@ -35,10 +35,30 @@ in
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  networking.hostName = "acto"; # Define your hostname
+  ## Networking
 
-  # WiFi
-  networking.networkmanager.enable = true; # Easiest to use and most distros use this by default.
+  # Set Hostname
+  networking.hostName = "acto";
+
+  # WiFi by NetworkManager
+  networking.networkmanager.enable = true; 
+
+  # Enable Tailscale as client, imperatively configured
+  services.tailscale.enable = true;
+
+
+  # Enable the OpenSSH daemon.
+  services.openssh.enable = true;
+  services.openssh.settings.PermitRootLogin = "yes";
+
+  # Open ports in the firewall.
+  # networking.firewall.allowedTCPPorts = [ ... ];
+  # networking.firewall.allowedUDPPorts = [ ... ];
+  # Or disable the firewall altogether.
+  networking.firewall.enable = false;
+
+
+  ## Time and Location
 
   # Set your time zone.
   time.timeZone = "Europe/Berlin";
@@ -98,23 +118,24 @@ in
   ## Development
   # Enable vscodium setup
   custom.vscodium.enable = true;
-  
-  
+
+
   # Enable custom firefox setup
   custom.firefox.enable = true;
 
-  
+
   ## Gaming
   # Enable custom Minecraft setup
   custom.gaming.minecraft.enable = true;
-  
+
   # Enable custom Minecraft setup
   custom.gaming.steam.enable = true;
 
-  ## Virtualization
+  ## Virtualisation
   # Enable kvm
   # virtualisation.libvirtd.enable = false;
   # custom.vfio.enable = false;
+  custom.virtualisation.docker.enable = true;
 
   users.mutableUsers = false;
 
@@ -128,7 +149,6 @@ in
     isNormalUser = true;
     hashedPassword = "$6$fSedKlaWglw6hfXh$EU5D6BmYiEi7AD9qCJ.I.LpZ/Qjn.7KfezDWr007BPvvOTDYLtFLZVN2p7r8fQFnJ3c.9.AtMPfamFrRNIkUU/";
 
-    #    shell = pkgs.zsh;
     openssh.authorizedKeys.keys = [
       sshPubKey
     ];
@@ -145,7 +165,6 @@ in
       nixpkgs-fmt
       htop
     ];
-    #shell = pkgs.zsh;
   };
 
   programs.corectrl.enable = true;
@@ -185,23 +204,6 @@ in
   #   enable = true;
   #   enableSSHSupport = true;
   # };
-
-  # List services that you want to enable:
-
-  # Enable the OpenSSH daemon.
-  services.openssh.enable = true;
-  services.openssh.settings.PermitRootLogin = "yes";
-
-  # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # Or disable the firewall altogether.
-  networking.firewall.enable = true;
-
-  # Copy the NixOS configuration file and link it from the resulting system
-  # (/run/current-system/configuration.nix). This is useful in case you
-  # accidentally delete configuration.nix.
-  # system.copySystemConfiguration = true;
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
