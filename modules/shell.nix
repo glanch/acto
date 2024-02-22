@@ -10,9 +10,9 @@ in
 
   config = mkIf cfg.enable
     {
-      # Enable zsh
-      programs.zsh.enable = true;
-
+      # Enable fish
+      programs.fish.enable = true;
+      
       # Enable Oh-my-zsh
       programs.zsh.ohMyZsh = {
         enable = true;

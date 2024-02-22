@@ -98,6 +98,30 @@ in
                   icon = "fingerprint";
                   id = 3;
                 };
+
+                "Google Accounts" = {
+                  color = "blue";
+                  icon = "fingerprint";
+                  id = 4;
+                };
+
+                "PayPal" = {
+                  color = "blue";
+                  icon = "dollar";
+                  id = 5;
+                };
+
+                "Amazon" = {
+                  color = "blue";
+                  icon = "cart";
+                  id = 6;
+                };
+
+                "University" = {
+                  color = "blue";
+                  icon = "briefcase";
+                  id = 7;
+                };
               };
 
               search =

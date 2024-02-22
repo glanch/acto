@@ -23,6 +23,7 @@ in
       ./modules/nur.nix
       ./modules/firefox.nix
       ./modules/virtualisation
+      ./modules/color.nix
     ];
 
   # Enable flakes

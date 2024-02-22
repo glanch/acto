@@ -1,41 +1,76 @@
-{ config, lib, pkgs, ... }:
-{
+{ config, lib, pkgs, ... }: {
+  # Enable Intel iGPU early in the boot process
 
-  # Enable OpenGL
-  hardware.opengl = {
-    enable = true;
-    driSupport = true;
-    driSupport32Bit = true;
-  };
 
-  # Load nvidia driver for Xorg and Wayland
-  services.xserver.videoDrivers = ["nvidia"];
+  environment.systemPackages =
+
+    # Running `nvidia-offload vlc` would run VLC with dGPU
+
+    let
+      nvidia-offload = pkgs.writeShellScriptBin "nvidia-offload" ''
+
+      export __NV_PRIME_RENDER_OFFLOAD=1
+
+      export __NV_PRIME_RENDER_OFFLOAD_PROVIDER=NVIDIA-G0
+
+      export __GLX_VENDOR_LIBRARY_NAME=nvidia
+
+      export __VK_LAYER_NV_optimus=NVIDIA_only
+
+
+      exec "$@"
+
+    '';
+
+    in
+    [ nvidia-offload ];
+
 
   hardware.nvidia = {
 
-    # Modesetting is required.
-    modesetting.enable = true;
+    # Drivers must be at verion 525 or newer
 
-    # Nvidia power management. Experimental, and can cause sleep/suspend to fail.
-    powerManagement.enable = false;
-    # Fine-grained power management. Turns off GPU when not in use.
-    # Experimental and only works on modern Nvidia GPUs (Turing or newer).
-    powerManagement.finegrained = false;
+    package = config.boot.kernelPackages.nvidiaPackages.beta;
 
-    # Use the NVidia open source kernel module (not to be confused with the
-    # independent third-party "nouveau" open source driver).
-    # Support is limited to the Turing and later architectures. Full list of 
-    # supported GPUs is at: 
-    # https://github.com/NVIDIA/open-gpu-kernel-modules#compatible-gpus 
-    # Only available from driver 515.43.04+
-    # Currently alpha-quality/buggy, so false is currently the recommended setting.
-    open = false;
+    prime = {
 
-    # Enable the Nvidia settings menu,
-	# accessible via `nvidia-settings`.
-    nvidiaSettings = true;
+      offload.enable = true; # Enable PRIME offloading
 
-    # Optionally, you may need to select the appropriate driver version for your specific GPU.
-    package = config.boot.kernelPackages.nvidiaPackages.stable;
+      # TODO: find out how to fix these ids since they seem to change
+      # amdgpuBusId = "PCI:16:0:0"; # lspci | grep VGA | grep Intel
+
+      # nvidiaBusId = "PCI:16:0:0"; # lspci | grep VGA | grep NVIDIA
+
+    };
+
   };
+
+  home-manager.users.christopher = { lib, pkgs, ... }: {
+    # TODO: check how to enable unfree packages here individually
+    # Overwrite steam.desktop shortcut so that is uses PRIME
+
+    # offloading for Steam and all its games
+    # nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
+    #   "steam"
+    #   "steam-original"
+    #   "steam-run"
+    # ];
+    # home.activation.steam = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+
+    #   $DRY_RUN_CMD sed 's/^Exec=/&nvidia-offload /' \
+
+    #     ${pkgs.steam}/share/applications/steam.desktop \
+
+    #     > ~/.local/share/applications/steam.desktop
+
+    #   $DRY_RUN_CMD chmod +x ~/.local/share/applications/steam.desktop
+
+    # '';
+
+  };
+
+  
+  services.xserver.videoDrivers = [ "nvidia" ];
+
 }
+

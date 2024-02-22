@@ -9,7 +9,8 @@
       (modulesPath + "/installer/scan/not-detected.nix")
       ./modules/hardware/msi-pro-x670-p.nix
       ./modules/hardware/disk-config.nix
-      ./modules/hardware/nvidia.nix
+      ./modules/hardware/brightness.nix
+      ./modules/hardware/bluetooth.nix
     ];
 
   boot.initrd.availableKernelModules = [ "ahci" "nvme" "xhci_pci" "usb_storage" "usbhid" "sd_mod" ];
