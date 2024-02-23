@@ -1,7 +1,7 @@
 { config, lib, pkgs, ... }:
 {
   # Add kernel module
-  boot.kernelModules = "i2c_dev";
+  boot.kernelModules = ["i2c_dev"];
   
   users.groups.ddc = { };
 
