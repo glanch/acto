@@ -11,6 +11,7 @@
       ./modules/hardware/disk-config.nix
       ./modules/hardware/brightness.nix
       ./modules/hardware/bluetooth.nix
+      ./modules/hardware/coolercontrol.nix
     ];
 
   boot.initrd.availableKernelModules = [ "ahci" "nvme" "xhci_pci" "usb_storage" "usbhid" "sd_mod" ];

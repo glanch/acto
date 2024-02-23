@@ -11,8 +11,9 @@
   inputs.firefox-addons.url = "gitlab:rycee/nur-expressions?dir=pkgs/firefox-addons";
   inputs.nixos-vfio.url = "github:j-brn/nixos-vfio";
   inputs.nix-colors.url = "github:misterio77/nix-colors";
+  inputs.nixpkgs-coolercontrol. url = "github:codifryed/nixpkgs/coolercontrol-0.17.0";
 
-  outputs = { self, nixpkgs, home-manager, deploy-rs, agenix, disko, hyprland, nix-vscode-extensions, nur, firefox-addons, nixos-vfio, nixpkgs-unstable, nix-colors, ... }@attrs: {
+  outputs = { self, nixpkgs, home-manager, deploy-rs, agenix, disko, hyprland, nix-vscode-extensions, nur, firefox-addons, nixos-vfio, nixpkgs-unstable, nix-colors, nixpkgs-coolercontrol, ... }@attrs: {
     nixosConfigurations."acto" = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       specialArgs = attrs;
