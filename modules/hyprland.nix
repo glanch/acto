@@ -113,12 +113,16 @@ in
             # See https://wiki.hyprland.org/Configuring/Keywords/ for more
 
             # Execute your favorite apps at launch
+
+            # Bar
             exec-once = waybar ${if config.custom.hyprpaper.enable then "& hyprpaper-withconfig" else ""} 
 
+            # Idle script
             exec-once = ${swayidleScript}
 
-            # exec-once = waybar & firefox
-
+            # Polkit authentication agent
+            exec-once = ${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1
+            
             # Source a file (multi-file configs)
             # source = ~/.config/hypr/myColors.conf
 

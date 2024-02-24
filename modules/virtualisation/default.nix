@@ -1,4 +1,4 @@
 { ... }:
 {
-  imports = [ ./docker.nix ];
+  imports = [ ./docker.nix ./vfio.nix ];
 }

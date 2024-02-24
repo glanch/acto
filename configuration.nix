@@ -134,8 +134,8 @@ in
 
   ## Virtualisation
   # Enable kvm
-  # virtualisation.libvirtd.enable = false;
-  # custom.vfio.enable = false;
+  # virtualisation.libvirtd.enable = false; 
+  custom.virtualisation.vfio.enable = true;
   custom.virtualisation.docker.enable = true;
 
   users.mutableUsers = false;
@@ -153,7 +153,7 @@ in
     openssh.authorizedKeys.keys = [
       sshPubKey
     ];
-    extraGroups = [ "wheel" "lock" "dialout" "plugdev" "networkmanager" "audio" "vboxusers" "libvirtd" "adbusers" ];
+    extraGroups = [ "wheel" "lock" "dialout" "plugdev" "networkmanager" "audio" "vboxusers" "libvirt" "adbusers" ];
     packages = with pkgs; [
       firefox
       vim
