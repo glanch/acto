@@ -9,6 +9,14 @@ in
   ];
   options.custom.virtualisation.vfio = {
     enable = mkEnableOption "Enable VFIO";
+    vfioDevices = mkOption {
+      type = types.listOf types.str;
+      default = [ "10de:1e81" "10de:10f8" "10de:1ad8" "10de:1ad9" "1002:164e" ];
+    };
+    blacklistNvidia = mkOption {
+      type = types.bool;
+      default = true;
+    };
   };
 
   config = mkIf cfg.enable
@@ -16,9 +24,9 @@ in
       virtualisation.vfio = {
         enable = true;
         IOMMUType = "amd";
-        blacklistNvidia = true;
+        blacklistNvidia = cfg.blacklistNvidia;
         ignoreMSRs = false;
-        devices = [ "10de:1e81" "10de:10f8" "10de:1ad8" "10de:1ad9" "1002:164e"];
+        devices = cfg.vfioDevices;
       };
 
       users.users.qemu-libvirtd.group = "qemu-libvirtd";
@@ -36,7 +44,6 @@ in
           swtpm.enable = true;
           ovmf = {
             enable = true;
-            edf2 = true;
             packages = [
               (pkgs.OVMFFull.override {
                 secureBoot = true;
@@ -64,6 +71,9 @@ in
 
       virtualisation.hugepages = {
         enable = true;
+        defaultPageSize = "1G";
+        pageSize = "1G";
+        numPages = 16;
       };
 
       users.users.christopher.extraGroups = [ "libvirtd" "kvm" "input" ];

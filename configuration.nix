@@ -2,10 +2,18 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running `nixos-help`).
 
-{ config, pkgs, home-manager, agenix, disko, nur, ... }:
+{ config, lib, pkgs, home-manager, agenix, disko, nur, ... }:
 
 let
   sshPubKey = builtins.readFile ./identities/acto/christopher.pub;
+
+  # VFIO Device Identifier
+  RTX2080SuperPCIDevices = [ "10de:1e81" "10de:10f8" "10de:1ad8" "10de:1ad9" ];
+  RX580PCIDevices = [ "1002:aaf0" "1002:67df" ];
+  RaphaeliGPUPCIDevices = [ "1002:164e" ];
+  RembrandtPCIDevices = [ "1002:1640" ];
+
+  defaultVFIODevices = RTX2080SuperPCIDevices;
 in
 {
   imports =
@@ -24,8 +32,62 @@ in
       ./modules/firefox.nix
       ./modules/virtualisation
       ./modules/color.nix
+      ./modules/hardware/nvidia.nix
     ];
 
+
+  specialisation =
+
+    {
+      "NoPassthrough,NVidiaDriver".configuration = {
+        custom = {
+          virtualisation.vfio = {
+            blacklistNvidia = false;
+            vfioDevices = [ ];
+          };
+
+          nvidia.enable = true;
+        };
+      };
+      "NoPassthrough,Offloading".configuration = {
+        custom = {
+          virtualisation.vfio = {
+            blacklistNvidia = false;
+            vfioDevices = [ ];
+          };
+          nvidia.enable = true;
+          nvidia.offloading = true;
+
+        };
+      };
+      "VFIO-Raphael".configuration = {
+        system.nixos.tags = [ "Raphael-VFIO" ];
+        custom = {
+          virtualisation.vfio = {
+            blacklistNvidia = false;
+            vfioDevices = RaphaeliGPUPCIDevices;
+          };
+          nvidia.enable = false;
+        };
+
+      };
+      "VFIO-RTX2080S".configuration = {
+        system.nixos.tags = [ "RTX2080S-VFIO" ];
+        custom.virtualisation.vfio = {
+          blacklistNvidia = true;
+          vfioDevices = RTX2080SuperPCIDevices;
+        };
+        custom.nvidia.enable = false;
+      };
+      "VFIO-RTX2080S,Raphael".configuration = {
+        system.nixos.tags = [ "RTX2080S-VFIO" ];
+        custom.virtualisation.vfio = {
+          blacklistNvidia = true;
+          vfioDevices = RTX2080SuperPCIDevices ++ RaphaeliGPUPCIDevices;
+        };
+        custom.nvidia.enable = false;
+      };
+    };
   # Enable flakes
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
@@ -42,7 +104,7 @@ in
   networking.hostName = "acto";
 
   # WiFi by NetworkManager
-  networking.networkmanager.enable = true; 
+  networking.networkmanager.enable = false;
 
   # Enable Tailscale as client, imperatively configured
   services.tailscale.enable = true;
@@ -135,7 +197,19 @@ in
   ## Virtualisation
   # Enable kvm
   # virtualisation.libvirtd.enable = false; 
-  custom.virtualisation.vfio.enable = true;
+
+  # Enable vfio setup
+  custom.virtualisation.vfio = lib.mkDefault {
+    enable = true;
+    blacklistNvidia = true;
+    vfioDevices = defaultVFIODevices;
+  };
+
+  # Disable nvidia
+  custom.nvidia.enable = lib.mkDefault false;
+
+
+  # Enable docker
   custom.virtualisation.docker.enable = true;
 
   users.mutableUsers = false;

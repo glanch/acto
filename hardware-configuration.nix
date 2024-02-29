@@ -16,8 +16,12 @@
 
   boot.initrd.availableKernelModules = [ "ahci" "nvme" "xhci_pci" "usb_storage" "usbhid" "sd_mod" ];
 
-  boot.kernelModules = [ "kvm-amd" ];
-  boot.kernelParams = [ "amd_iommu=on" ];
+  boot.kernelModules = [ "kvm-amd" "amdgpu" ];
+  boot.kernelParams = [
+    "amd_iommu=on"
+    "video=DP-9:3840x2160@60"
+    "video=DP-9:3840x2160@60"
+  ];
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
   # (the default) this is the recommended approach. When using systemd-networkd it's
