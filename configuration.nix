@@ -234,11 +234,11 @@ in
       mixxx
       rnix-lsp
       clang-tools_15
-      virt-manager
       chromium
       direnv
       nixpkgs-fmt
       htop
+      anki
     ];
   };
 
@@ -270,6 +270,7 @@ in
     wget
     nano
     docker-compose
+    kdiskmark
   ];
 
   # Some programs need SUID wrappers, can be configured further or are

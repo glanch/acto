@@ -122,6 +122,12 @@ in
                   icon = "briefcase";
                   id = 7;
                 };
+
+                "LinkedIn" = {
+                  color = "blue";
+                  icon = "briefcase";
+                  id = 8;
+                };
               };
 
               search =
