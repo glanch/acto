@@ -155,8 +155,10 @@ in
 
   # Configure keymap in X11
   services.xserver = {
-    layout = "de";
-    xkbVariant = "";
+    xkb = {
+      layout = "de";
+      variant = "";
+    };
   };
 
   # Enable the GNOME Desktop Environment.
