@@ -29,14 +29,29 @@ in
         devices = cfg.vfioDevices;
       };
 
+
+
       users.users.qemu-libvirtd.group = "qemu-libvirtd";
       users.groups.qemu-libvirtd = { };
+
+      # Add virt-amanger, Looking Glass client and Moonlight
+      users.users.christopher = {
+        packages = with pkgs; [
+          virt-manager
+          looking-glass-client
+          moonlight-qt
+        ];
+      };
 
       virtualisation.libvirtd = {
         enable = true;
         deviceACL = [
           "/dev/kvm"
           "/dev/kvmfr0"
+          "/dev/kvmfr1"
+          "/dev/kvmfr2"
+          "/dev/shm/scream"
+          "/dev/shm/looking-glass"
         ];
         qemu = {
           package = pkgs.qemu_kvm;
@@ -54,6 +69,7 @@ in
         };
       };
 
+      # Add three kvmfr devices 
       virtualisation.kvmfr = {
         enable = true;
 
@@ -66,9 +82,27 @@ in
               mode = "0777";
             };
           }
+          {
+            size = 128; # in MiB
+            permissions = {
+              user = "christopher";
+              group = "christopher";
+              mode = "0777";
+            };
+          }
+
+          {
+            size = 128; # in MiB
+            permissions = {
+              user = "christopher";
+              group = "christopher";
+              mode = "0777";
+            };
+          }
         ];
       };
 
+      # Reserve total of 16GiB, 1GiB each, hugepages
       virtualisation.hugepages = {
         enable = true;
         defaultPageSize = "1G";
@@ -76,6 +110,19 @@ in
         numPages = 16;
       };
 
+      # Add shmem areas for both scream and looking-glass as a kvmfr backup
+      virtualisation.sharedMemoryFiles = {
+        scream = {
+          user = "christopher";
+          group = "christopher"; # TODO: check permissions
+          mode = "666";
+        };
+        looking-glass = {
+          user = "christopher";
+          group = "christopher";
+          mode = "666";
+        };
+      };
       users.users.christopher.extraGroups = [ "libvirtd" "kvm" "input" ];
     };
 }
