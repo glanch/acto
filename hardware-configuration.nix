@@ -13,6 +13,7 @@
       ./modules/hardware/bluetooth.nix
       ./modules/hardware/coolercontrol.nix
       ./modules/hardware/amdgpu.nix
+      ./modules/hardware/openrgb.nix
     ];
 
   boot.initrd.availableKernelModules = [ "ahci" "nvme" "xhci_pci" "usb_storage" "usbhid" "sd_mod" ];

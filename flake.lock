@@ -403,22 +403,6 @@
         "type": "github"
       }
     },
-    "nixpkgs-coolercontrol": {
-      "locked": {
-        "lastModified": 1708107384,
-        "narHash": "sha256-UXznzCmBpSFELFuztM7KSS+R1a1vWBYZBISARafu+OA=",
-        "owner": "codifryed",
-        "repo": "nixpkgs",
-        "rev": "0824756d056e91cf1c40523877449a698ad71b77",
-        "type": "github"
-      },
-      "original": {
-        "owner": "codifryed",
-        "ref": "coolercontrol-0.17.0",
-        "repo": "nixpkgs",
-        "type": "github"
-      }
-    },
     "nixpkgs-lib": {
       "locked": {
         "lastModified": 1697935651,
@@ -582,11 +566,11 @@
     },
     "nixpkgs_9": {
       "locked": {
-        "lastModified": 1709232790,
-        "narHash": "sha256-zlPkKbCFbNt+IcZ0ZZl9AymMaxtLC59GCuk3SJYl29o=",
+        "lastModified": 1710605563,
+        "narHash": "sha256-+3mLD5ayeIuct1oWWDftH/AnINkWGI5sPXItO1oRbY4=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "393c5235a4caea9efc7e908dab68203cecbda0b7",
+        "rev": "f9d71437f3d66c73735dd6e4ad63fb29823a751f",
         "type": "github"
       },
       "original": {
@@ -622,7 +606,6 @@
         "nix-vscode-extensions": "nix-vscode-extensions",
         "nixos-vfio": "nixos-vfio",
         "nixpkgs": "nixpkgs_9",
-        "nixpkgs-coolercontrol": "nixpkgs-coolercontrol",
         "nixpkgs-unstable": "nixpkgs-unstable",
         "nur": "nur"
       }

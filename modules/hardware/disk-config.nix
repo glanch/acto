@@ -43,6 +43,10 @@
                       mountpoint = "/home";
                       mountOptions = [ "compress=zstd" "noatime" ];
                     };
+                    "/home/christopher/subvolumefoo" = {
+                      mountpoint = "/home/christopher/subvolumefoo";
+                      mountOptions = [ "noatime" "nodatacow" ];
+                    };
                     "/nix" = {
                       mountpoint = "/nix";
                       mountOptions = [ "compress=zstd" "noatime" ];

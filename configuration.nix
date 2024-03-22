@@ -221,6 +221,9 @@ in
     sshPubKey
   ];
 
+  hardware.xone.enable = true;
+  hardware.xpadneo.enable = true;
+
   # My user account
   users.users.christopher = {
     isNormalUser = true;
@@ -234,7 +237,7 @@ in
       firefox
       vim
       mixxx
-      rnix-lsp
+      /* rnix-lsp */
       clang-tools_15
       chromium
       direnv
