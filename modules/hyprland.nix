@@ -1,4 +1,4 @@
-{ lib, config, pkgs, hyprland, ... }:
+{ lib, config, pkgs, hyprland, nixpkgs-unstable, ... }:
 with lib;
 let
   # Shorter name to access final settings a 
@@ -13,11 +13,13 @@ in
   imports = [
     ./hyprpaper.nix
     ./media/playerctl.nix
+    hyprland.nixosModules.default
   ];
 
   # Declare what settings a user of this "hello.nix" module CAN SET.
   options.custom.hyprland = {
     enable = mkEnableOption "Enable hyprland, waybar, light, hyprpaper";
+    
   };
 
   config = mkIf cfg.enable {
@@ -28,8 +30,7 @@ in
     };
     # Hyprland
     programs.hyprland = {
-      enable = true;
-      portalPackage = pkgs.xdg-desktop-portal-hyprland;
+      enable = true;  
     };
 
     # Light daemon support for backlight
@@ -70,10 +71,15 @@ in
 
     # Configure everything with homemanager
     home-manager.users.christopher = { ... }: {
-      imports = [ ]; #hyprland.homeManagerModules.default ];
+      # TODO: check if this module makes sense
+      /* imports = [ hyprland.homeManagerModules.default]; */
+
+      # Notification daemon
+      services.dunst.enable = true;
 
       wayland.windowManager.hyprland.enable = true;
-      services.dunst.enable = true;
+      # Use Hyprland from Unstable
+      wayland.windowManager.hyprland.package = nixpkgs-unstable.legacyPackages.${pkgs.system}.hyprland;
 
       wayland.windowManager.hyprland.extraConfig =
         let

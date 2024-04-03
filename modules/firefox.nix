@@ -18,8 +18,10 @@ in
       xdg = {
         portal = {
           enable = true;
+          # TODO: check if this is really necessary
+          # It seems that hyprland does not work with xdg-desktop-portal-hyprland as extraPortals
           extraPortals = with pkgs; [
-            xdg-desktop-portal-hyprland
+            /* xdg-desktop-portal-hyprland */
           ];
 
         };
@@ -80,7 +82,7 @@ in
                   "browser.newtabpage.activity-stream.system.showSponsored" = lock-false;
                   "browser.newtabpage.activity-stream.showSponsoredTopSites" = lock-false;
                 };
-              extensions = with firefox-addons.packages.${pkgs.system}; [ ublock-origin bitwarden darkreader multi-account-containers darkreader];
+              extensions = with firefox-addons.packages.${pkgs.system}; [ ublock-origin bitwarden darkreader multi-account-containers darkreader ];
               containers = {
                 "Dangerous" = {
                   color = "red";

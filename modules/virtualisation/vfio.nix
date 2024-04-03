@@ -73,33 +73,36 @@ in
       virtualisation.kvmfr = {
         enable = true;
 
-        devices = [
-          {
-            size = 128; # in MiB
+        devices =
+          let
             permissions = {
-              user = "christopher";
-              group = "christopher";
-              mode = "0777";
+              permissions = {
+                user = "christopher";
+                group = "christopher";
+                mode = "0777";
+              };
             };
-          }
-          {
-            size = 128; # in MiB
-            permissions = {
-              user = "christopher";
-              group = "christopher";
-              mode = "0777";
-            };
-          }
 
-          {
-            size = 128; # in MiB
-            permissions = {
-              user = "christopher";
-              group = "christopher";
-              mode = "0777";
-            };
-          }
-        ];
+          in
+          [
+            (permissions // {
+              size = 128; # in MiB
+            })
+            (permissions // {
+              resolution = {
+                width = 2560;
+                height = 1440;
+                pixelFormat = "rgba32";
+              };
+            })
+            (permissions // {
+              resolution = {
+                width = 3840;
+                height = 2160;
+                pixelFormat = "rgba32";
+              };
+            })
+          ];
       };
 
       # Reserve total of 16GiB, 1GiB each, hugepages
