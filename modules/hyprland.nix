@@ -70,7 +70,7 @@ in
 
     # Configure everything with homemanager
     home-manager.users.christopher = { ... }: {
-      imports = [ hyprland.homeManagerModules.default ];
+      imports = [ ]; #hyprland.homeManagerModules.default ];
 
       wayland.windowManager.hyprland.enable = true;
       services.dunst.enable = true;
