@@ -40,7 +40,7 @@ in
   specialisation =
 
     {
-      "NoPassthrough,NVidiaDriver".configuration = {
+      "NoPassthrough-NVidiaDriver".configuration = {
         custom = {
           virtualisation.vfio = {
             blacklistNvidia = false;
@@ -50,7 +50,7 @@ in
           nvidia.enable = true;
         };
       };
-      "NoPassthrough,Offloading".configuration = {
+      "NoPassthrough-Offloading".configuration = {
         custom = {
           virtualisation.vfio = {
             blacklistNvidia = false;
@@ -80,7 +80,7 @@ in
         };
         custom.nvidia.enable = false;
       };
-      "VFIO-RTX2080S,Raphael".configuration = {
+      "VFIO-RTX2080S_Raphael".configuration = {
         system.nixos.tags = [ "RTX2080S-VFIO" ];
         custom.virtualisation.vfio = {
           blacklistNvidia = true;
