@@ -22,6 +22,7 @@ in
       agenix.nixosModules.default
       disko.nixosModules.default
       ./hardware-configuration.nix
+      ./modules/networking
       ./modules/hyprland.nix
       ./modules/media
       ./modules/gaming
@@ -98,28 +99,7 @@ in
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
-  ## Networking
-
-  # Set Hostname
-  networking.hostName = "acto";
-
-  # WiFi by NetworkManager
-  networking.networkmanager.enable = false;
-
-  # Enable Tailscale as client, imperatively configured
-  services.tailscale.enable = true;
-
-
-  # Enable the OpenSSH daemon.
-  services.openssh.enable = true;
-  services.openssh.settings.PermitRootLogin = "yes";
-
-  # Open ports in the firewall.
-  # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
-  # Or disable the firewall altogether.
-  networking.firewall.enable = false;
-
+  # Networking: see modules/networking/general.nix
 
   ## Time and Location
 
@@ -232,7 +212,7 @@ in
     openssh.authorizedKeys.keys = [
       sshPubKey
     ];
-    extraGroups = [ "wheel" "lock" "dialout" "plugdev" "networkmanager" "audio" "vboxusers" "libvirt" "adbusers" ];
+    extraGroups = [ "wheel" "lock" "dialout" "plugdev" "audio" "vboxusers" "libvirt" "adbusers" ];
     packages = with pkgs; [
       firefox
       vim
@@ -244,6 +224,7 @@ in
       nixpkgs-fmt
       htop
       anki
+      zotero
     ];
   };
 
@@ -276,6 +257,7 @@ in
     nano
     docker-compose
     kdiskmark
+    unigine-valley
   ];
 
   # Some programs need SUID wrappers, can be configured further or are

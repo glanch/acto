@@ -80,7 +80,7 @@ in
                   "browser.newtabpage.activity-stream.system.showSponsored" = lock-false;
                   "browser.newtabpage.activity-stream.showSponsoredTopSites" = lock-false;
                 };
-              extensions = with config.nur.repos.rycee.firefox-addons; [ ublock-origin bitwarden darkreader multi-account-containers ];
+              extensions = with firefox-addons.packages.${pkgs.system}; [ ublock-origin bitwarden darkreader multi-account-containers darkreader];
               containers = {
                 "Dangerous" = {
                   color = "red";
@@ -147,7 +147,20 @@ in
                       definedAliases = [ "@np" ];
                     };
 
-                    "NixOS WikiD" = {
+                    "NixOS Options" = {
+                      urls = [{
+                        template = "https://search.nixos.org/options";
+                        params = [
+                          { name = "type"; value = "packages"; }
+                          { name = "query"; value = "{searchTerms}"; }
+                        ];
+                      }];
+
+                      icon = "${pkgs.nixos-icons}/share/icons/hicolor/scalable/apps/nix-snowflake.svg";
+                      definedAliases = [ "@no" ];
+                    };
+
+                    "NixOS Wiki" = {
                       urls = [{ template = "https://nixos.wiki/index.php?search={searchTerms}"; }];
                       iconUpdateURL = "https://nixos.wiki/favicon.png";
                       updateInterval = 24 * 60 * 60 * 1000; # every day
@@ -156,6 +169,7 @@ in
 
                     "Bing".metaData.hidden = true;
                     "Google".metaData.alias = "@g"; # builtin engines only support specifying one additional alias
+                    "DuckDuckGo".metaData.alias = "@ddg"; # builtin engines only support specifying one additional alias
                   };
                 };
 

@@ -1,22 +1,51 @@
 {
+  # nixpkgs
   inputs.nixpkgs.url = github:NixOS/nixpkgs;
   inputs.nixpkgs-unstable.url = github:NixOS/nixpkgs/nixpkgs-unstable;
-  inputs.home-manager.url = github:nix-community/home-manager;
+
+  # Hyprland
+  inputs.hyprland = {
+    url = "github:hyprwm/Hyprland";
+    inputs.nixpkgs.follows = "nixpkgs";
+  };
+
+  # Home Manager
+  inputs.home-manager = {
+    url = github:nix-community/home-manager;
+    inputs.nixpkgs.follows = "nixpkgs";
+  };
+
+  # VSCode extensions
+  inputs.nix-vscode-extensions = {
+    url = "github:nix-community/nix-vscode-extensions";
+    inputs.nixpkgs.follows = "nixpkgs";
+  };
+
+  # NUR
+  inputs.nur.url = github:nix-community/NUR;
+
+  # Specialized NUR part as input for firefox addons
+  inputs.firefox-addons = {
+    url = "gitlab:rycee/nur-expressions?dir=pkgs/firefox-addons";
+    inputs.nixpkgs.follows = "nixpkgs";
+  };
+
+  # Virtualisation with VFIO
+  inputs.nixos-vfio.url = "github:glanch/nixos-vfio";
+
+  # Tools
   inputs.deploy-rs.url = "github:serokell/deploy-rs";
   inputs.agenix.url = "github:ryantm/agenix";
-  inputs.hyprland.url = "github:hyprwm/Hyprland";
   inputs.disko.url = "github:nix-community/disko";
-  inputs.nix-vscode-extensions.url = "github:nix-community/nix-vscode-extensions";
-  inputs.nur.url = github:nix-community/NUR;
-  inputs.firefox-addons.url = "gitlab:rycee/nur-expressions?dir=pkgs/firefox-addons";
-  inputs.nixos-vfio.url = "github:glanch/nixos-vfio";
+
+
   inputs.nix-colors.url = "github:misterio77/nix-colors";
 
   outputs = { self, nixpkgs, home-manager, deploy-rs, agenix, disko, hyprland, nix-vscode-extensions, nur, firefox-addons, nixos-vfio, nixpkgs-unstable, nix-colors, ... }@attrs: {
     nixosConfigurations."acto" = nixpkgs.lib.nixosSystem {
       system = "x86_64-linux";
       specialArgs = attrs;
-      modules = [ ./configuration.nix];
+      modules = [ ./configuration.nix ];
     };
     deploy.nodes.acto = {
       hostname = "acto.fritz.box";
