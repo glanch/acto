@@ -6,7 +6,7 @@
   # Hyprland
   inputs.hyprland = {
     url = "github:hyprwm/Hyprland";
-    inputs.nixpkgs.follows = "nixpkgs";
+    inputs.nixpkgs.follows = "nixpkgs-unstable";
   };
 
   # Home Manager
@@ -31,7 +31,7 @@
   };
 
   # Virtualisation with VFIO
-  inputs.nixos-vfio.url = "github:glanch/nixos-vfio";
+  inputs.nixos-vfio.url = "github:j-brn/nixos-vfio";
 
   # Tools
   inputs.deploy-rs.url = "github:serokell/deploy-rs";
