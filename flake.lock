@@ -433,15 +433,16 @@
         "nixpkgs": "nixpkgs_4"
       },
       "locked": {
-        "lastModified": 1712140335,
-        "narHash": "sha256-Zzyy1lYW2FmKbFGPM0+lf+QDr6byl4/gr4UQU/cIUEE=",
-        "owner": "j-brn",
+        "lastModified": 1712319486,
+        "narHash": "sha256-DvqYJlbSnjZuhZJ9q39uPyhwAmJfta9A4+249BOTlo8=",
+        "owner": "glanch",
         "repo": "nixos-vfio",
-        "rev": "592827d4eaf45660c7636ec7326b61d0b98361f2",
+        "rev": "b3cb9dd42b9dbcff476e8a32335426fb8aaa831f",
         "type": "github"
       },
       "original": {
-        "owner": "j-brn",
+        "owner": "glanch",
+        "ref": "additional_device_xml",
         "repo": "nixos-vfio",
         "type": "github"
       }

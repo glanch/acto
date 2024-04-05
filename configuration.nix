@@ -2,7 +2,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running `nixos-help`).
 
-{ config, lib, pkgs, home-manager, agenix, disko, nur, ... }:
+{ config, lib, pkgs, home-manager, agenix, disko, nur, nixpkgs-unstable, ... }:
 
 let
   sshPubKey = builtins.readFile ./identities/acto/christopher.pub;
@@ -14,6 +14,15 @@ let
   RembrandtPCIDevices = [ "1002:1640" ];
 
   defaultVFIODevices = RTX2080SuperPCIDevices;
+
+  # Overlay for adding .unstable to pkgs
+  unstable-packages = final: _prev: {
+    unstable = import nixpkgs-unstable {
+      system = final.system;
+      config.allowUnfree = true;
+    };
+  };
+
 in
 {
   imports =
@@ -95,6 +104,11 @@ in
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
+  # Add overlay containing nixpkgs-unstable to add pkgs.unstable
+  nixpkgs.overlays = [
+    unstable-packages
+  ];
+
   # Bootloader
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -145,6 +159,8 @@ in
   services.xserver.displayManager.gdm.enable = true;
   services.xserver.desktopManager.gnome.enable = true;
 
+  services.gvfs.enable = true;
+
   ## Media
   # Enable pipewire setup
   custom.media.pipewire.enable = true;
@@ -177,10 +193,7 @@ in
   custom.gaming.steam.enable = true;
 
   ## Virtualisation
-  # Enable kvm
-  # virtualisation.libvirtd.enable = false; 
-
-  # Enable vfio setup
+  # Enable vfio and virtualisation setup
   custom.virtualisation.vfio = lib.mkDefault {
     enable = true;
     blacklistNvidia = true;
