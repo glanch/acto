@@ -52,6 +52,7 @@ in
           totalCores = "0-31";
         in
         {
+          enable = true;
           onBoot = "ignore";
           onShutdown = "shutdown";
 
@@ -69,7 +70,7 @@ in
           qemu.networks.declarative = true;
           qemu.networks.networks = {
             default.config = {
-              bridge.name = "virbr6796969";
+              bridge.name = "virbr_win10_1";
               forward = { mode = "nat"; };
 
               ips = [
