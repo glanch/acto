@@ -32,6 +32,7 @@ in
       disko.nixosModules.default
       ./hardware-configuration.nix
       ./modules/networking
+      ./modules/shell.nix
       ./modules/hyprland.nix
       ./modules/media
       ./modules/gaming
@@ -214,8 +215,12 @@ in
     sshPubKey
   ];
 
+  # XBox Controller
   hardware.xone.enable = true;
   hardware.xpadneo.enable = true;
+  
+  # Enable shell configuration
+  custom.shell.enable = true;
 
   # My user account
   users.users.christopher = {
@@ -230,7 +235,6 @@ in
       firefox
       vim
       mixxx
-      /* rnix-lsp */
       clang-tools_15
       chromium
       direnv

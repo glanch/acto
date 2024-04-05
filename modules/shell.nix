@@ -11,7 +11,7 @@ in
   config = mkIf cfg.enable
     {
       # Enable fish
-      programs.fish.enable = true;
+      /* programs.fish.enable = true;
       
       # Enable Oh-my-zsh
       programs.zsh.ohMyZsh = {
@@ -24,7 +24,14 @@ in
       
       # Add zsh to /etc/shells
       environment.shells = with pkgs; [ zsh ];
+ */
 
+      # Enable nix-index
+      programs.nix-index = {
+        enable = true;
+        enableBashIntegration = true;
+      };
+      programs.command-not-found.enable = false;
     };
 }
 
