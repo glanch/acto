@@ -31,7 +31,7 @@
   };
 
   # Virtualisation with VFIO
-  inputs.nixos-vfio.url = "github:j-brn/nixos-vfio";
+  inputs.nixos-vfio.url = "github:glanch/nixos-vfio/additional_device_xml";
 
   # Tools
   inputs.deploy-rs.url = "github:serokell/deploy-rs";
