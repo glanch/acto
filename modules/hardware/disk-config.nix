@@ -47,6 +47,10 @@
                       mountpoint = "/home/christopher/subvolumefoo";
                       mountOptions = [ "noatime" "nodatacow" ];
                     };
+                    "/home/christopher/.qcow-storage" = {
+                      mountpoint = "/home/christopher/.qcow-storage";
+                      mountOptions = [ "noatime" "nodatacow" ];
+                    };
                     "/nix" = {
                       mountpoint = "/nix";
                       mountOptions = [ "compress=zstd" "noatime" ];

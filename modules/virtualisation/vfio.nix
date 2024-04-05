@@ -187,7 +187,7 @@ in
               devicesExtraXml = ''
                 <disk type="file" device="disk"> 
                   <driver name="qemu" type="qcow2"/>
-                  <source file="/home/christopher/subvolumefoo/test/Win10Gaming.qcow2"/>
+                  <source file="/home/christopher/.qcow-storage/win10/win10.qcow2"/>
                   <backingStore/>
                   <target dev="vdb" bus="sata"/>
                   <address type="drive" controller="0" bus="0" target="0" unit="1"/>
