@@ -2,7 +2,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running `nixos-help`).
 
-{ config, lib, pkgs, home-manager, agenix, disko, nur, nixpkgs-unstable, ... }:
+{ config, lib, pkgs, home-manager, agenix, disko, nur, nixpkgs-unstable, nixpkgs-moonlightlookingglassfix, ... }:
 
 let
   sshPubKey = builtins.readFile ./identities/acto/christopher.pub;
@@ -18,6 +18,13 @@ let
   # Overlay for adding .unstable to pkgs
   unstable-packages = final: _prev: {
     unstable = import nixpkgs-unstable {
+      system = final.system;
+      config.allowUnfree = true;
+    };
+  };
+
+  moonlightlookingglassfix-packages = final: _prev: {
+    moonlightlookingglass = import nixpkgs-moonlightlookingglassfix {
       system = final.system;
       config.allowUnfree = true;
     };
@@ -57,7 +64,10 @@ in
             vfioDevices = [ ];
           };
 
+          virtualisation.vms.fancontrol-microvm.enable = false;
+
           nvidia.enable = true;
+
         };
       };
       "NoPassthrough-Offloading".configuration = {
@@ -66,6 +76,9 @@ in
             blacklistNvidia = false;
             vfioDevices = [ ];
           };
+
+          virtualisation.vms.fancontrol-microvm.enable = false;
+
           nvidia.enable = true;
           nvidia.offloading = true;
 
@@ -78,6 +91,9 @@ in
             blacklistNvidia = false;
             vfioDevices = RaphaeliGPUPCIDevices;
           };
+
+          virtualisation.vms.fancontrol-microvm.enable = false;
+
           nvidia.enable = false;
         };
 
@@ -108,6 +124,7 @@ in
   # Add overlay containing nixpkgs-unstable to add pkgs.unstable
   nixpkgs.overlays = [
     unstable-packages
+    moonlightlookingglassfix-packages
   ];
 
   # Bootloader
@@ -201,24 +218,22 @@ in
     vfioDevices = defaultVFIODevices;
   };
 
-  # Disable nvidia
+  # Disable nvidia since for VFIO passthrough
   custom.nvidia.enable = lib.mkDefault false;
-
+  
+  # Enable both declarative VMs
+  custom.virtualisation.vms.fancontrol-microvm.enable = lib.mkDefault true;
+  custom.virtualisation.vms.win10-libvirtd.enable = lib.mkDefault true;
 
   # Enable docker
   custom.virtualisation.docker.enable = true;
 
   users.mutableUsers = false;
 
-  # Root user
-  users.users.root.openssh.authorizedKeys.keys = [
-    sshPubKey
-  ];
-
   # XBox Controller
   hardware.xone.enable = true;
   hardware.xpadneo.enable = true;
-  
+
   # Enable shell configuration
   custom.shell.enable = true;
 
@@ -275,6 +290,7 @@ in
     docker-compose
     kdiskmark
     unigine-valley
+    pciutils
   ];
 
   # Some programs need SUID wrappers, can be configured further or are

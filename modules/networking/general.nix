@@ -14,6 +14,15 @@
   # WiFi by NetworkManager
   networking.networkmanager.enable = false;
 
+  # Instead, use systemd networking
+
+  networking.useNetworkd = true;
+  systemd.network.enable = true;
+  systemd.services."systemd-networkd".environment.SYSTEMD_LOG_LEVEL = "debug";
+
+  # Enable DHCP on ethernet port
+  networking.interfaces.enp7s0.useDHCP = lib.mkDefault true;
+
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
   services.openssh.settings.PermitRootLogin = "yes";
