@@ -1,10 +1,10 @@
 {
   # nixpkgs
-  inputs.nixpkgs.url = github:NixOS/nixpkgs/nixos-23.11;
-  inputs.nixpkgs-unstable.url = github:NixOS/nixpkgs/nixos-unstable;
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
+  inputs.nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
 
   # Fractional Scaling Fixes for Moonlight / Looking Glass Client
-  inputs.nixpkgs-moonlightlookingglassfix.url = github:glanch/nixpkgs/moonshine-looking-glass;
+  inputs.nixpkgs-moonlightlookingglassfix.url = "github:glanch/nixpkgs/moonshine-looking-glass";
 
   # Hyprland
   inputs.hyprland = {
@@ -14,7 +14,7 @@
 
   # Home Manager
   inputs.home-manager = {
-    url = github:nix-community/home-manager/release-23.11;
+    url = "github:nix-community/home-manager/release-23.11";
     inputs.nixpkgs.follows = "nixpkgs";
   };
 
@@ -25,7 +25,7 @@
   };
 
   # NUR
-  inputs.nur.url = github:nix-community/NUR;
+  inputs.nur.url = "github:nix-community/NUR";
 
   # Specialized NUR part as input for firefox addons
   inputs.firefox-addons = {
@@ -37,7 +37,8 @@
   inputs.nixos-vfio.url = "github:glanch/nixos-vfio/additional_device_xml";
 
   # microvm.nix
-  inputs.microvm.url = "github:astro/microvm.nix";
+  # Fork containing option for disabling PCI device unbinding
+  inputs.microvm.url = "github:glanch/microvm.nix/option_unbind_pci_devices";
   inputs.microvm.inputs.nixpkgs.follows = "nixpkgs";
 
   # Tools

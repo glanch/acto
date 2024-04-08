@@ -21,7 +21,7 @@ in
   config =
     let
       hostIPv4Address = "10.5.10.1/24";
-      vmIPv4Address = "10.5.10.4";
+      vmIPv4Address = "10.5.10.5";
       vmMacAddress = "02:00:00:00:00:01";
       vmTapId = "vm-fancontrol";
       bridgeName = "br-fancontrol";
@@ -73,29 +73,31 @@ in
         nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
           "nvidia-x11"
         ];
+
         systemd.network.networks."11-microvm" = {
           matchConfig.Name = vmTapId;
           # Attach to the bridge that was configured above
           networkConfig.Bridge = bridgeName;
         };
 
-        systemd.services."fancontrol-at-boot" = {
-          wantedBy = [ "multi-user.target" ];
-          requires = [ "microvm@fancontrol.service" ];
-          serviceConfig = {
-            Type = "oneshot";
-            RemainAfterExit = true;
-          };
+        systemd.services."microvm@fancontrol".serviceConfig.ExecCondition =
+          pkgs.writeScript "check_vfio_status.sh" ''
+            #! ${pkgs.runtimeShell} -e
+            content=$(< /sys/bus/pci/drivers/vfio-pci/0000\:18\:00.0/enable)
 
-
-          script = ''
-            echo "Starting fancontrol microvm at boot"
+            # Check if the content is equal to 0
+            if [ "$content" == "0" ]; then
+              exit 0
+            else
+              exit 1
+            fi
           '';
-        };
+
 
         microvm.vms = {
           fancontrol = {
-            autostart = false;
+            unbindPciDevices = false;
+            autostart = true;
             # The package set to use for the microvm. This also determines the microvm's architecture.
             # Defaults to the host system's package set if not given.
             /* pkgs = import nixpkgs { system = pkgs.system; };*/

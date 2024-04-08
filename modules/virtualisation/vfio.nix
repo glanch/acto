@@ -66,9 +66,7 @@ in
             "/dev/shm/scream"
             "/dev/shm/looking-glass"
           ];
-
-          /*
-          scopedHooks.qemu = {
+          /*           scopedHooks.qemu = {
             "10-activate-core-isolation" = {
               enable = true;
               scope = {
@@ -94,9 +92,9 @@ in
                 systemctl set-property --runtime -- init.scope AllowedCPUs=${totalCores}
               '';
             };
-          };*/
+          }; */
 
-          
+
         };
 
       # Add three kvmfr devices 

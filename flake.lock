@@ -397,15 +397,16 @@
         "spectrum": "spectrum"
       },
       "locked": {
-        "lastModified": 1712366957,
-        "narHash": "sha256-7W3D1Gk6mGlwtV07n6YB/7s3tThcBYknlvDPcoJJSe4=",
-        "owner": "astro",
+        "lastModified": 1712593217,
+        "narHash": "sha256-jF8NpLewu+BMIJhnzgefMVNlwG2Vd0maq5Zu7xgrZyQ=",
+        "owner": "glanch",
         "repo": "microvm.nix",
-        "rev": "1e746a8987eb893adc8dd317b84e73d72803b650",
+        "rev": "f8f398d6b615ec41f25df5f9a57286f9dc2ee733",
         "type": "github"
       },
       "original": {
-        "owner": "astro",
+        "owner": "glanch",
+        "ref": "option_unbind_pci_devices",
         "repo": "microvm.nix",
         "type": "github"
       }
