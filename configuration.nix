@@ -176,7 +176,12 @@ in
   # Enable the GNOME Desktop Environment.
   services.xserver.displayManager.gdm.enable = true;
   services.xserver.desktopManager.gnome.enable = true;
-
+  
+  # See https://nixos.wiki/wiki/GNOME/Calendar
+  programs.dconf.enable = true;
+  services.gnome.evolution-data-server.enable = true;
+  services.gnome.gnome-online-accounts.enable = true;
+  services.gnome.gnome-keyring.enable = true;
   services.gvfs.enable = true;
 
   ## Media
@@ -291,6 +296,7 @@ in
     kdiskmark
     unigine-valley
     pciutils
+    fend
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
