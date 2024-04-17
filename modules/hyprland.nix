@@ -13,13 +13,12 @@ in
   imports = [
     ./hyprpaper.nix
     ./media/playerctl.nix
-    hyprland.nixosModules.default
+    /* hyprland.nixosModules.default */
   ];
 
   # Declare what settings a user of this "hello.nix" module CAN SET.
   options.custom.hyprland = {
     enable = mkEnableOption "Enable hyprland, waybar, light, hyprpaper";
-    
   };
 
   config = mkIf cfg.enable {
@@ -30,7 +29,7 @@ in
     };
     # Hyprland
     programs.hyprland = {
-      enable = true;  
+      enable = true;
     };
 
     # Light daemon support for backlight
@@ -64,7 +63,7 @@ in
     custom.hyprpaper.enable = true;
 
     # Set display targetwallpapers
-    custom.hyprpaper.target = ["DP-2" "HDMI-A-1"];
+    custom.hyprpaper.target = [ "DP-1" "HDMI-A-1" ];
 
     # Set wallpaper
     custom.hyprpaper.wallpaperFile = "${../assets/wallpapers/LatourdeCarol.jpg}";
@@ -79,7 +78,7 @@ in
 
       wayland.windowManager.hyprland.enable = true;
       # Use Hyprland from Unstable
-      wayland.windowManager.hyprland.package = nixpkgs-unstable.legacyPackages.${pkgs.system}.hyprland;
+      # wayland.windowManager.hyprland.package = nixpkgs-unstable.legacyPackages.${pkgs.system}.hyprland;
 
       wayland.windowManager.hyprland.extraConfig =
         let

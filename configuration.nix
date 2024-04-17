@@ -107,7 +107,15 @@ in
         custom.nvidia.enable = false;
       };
       "VFIO-RTX2080S_Raphael".configuration = {
-        system.nixos.tags = [ "RTX2080S-VFIO" ];
+        system.nixos.tags = [ "RTX2080S-VFIO" "Raphael-VFIO" ];
+        custom.virtualisation.vfio = {
+          blacklistNvidia = true;
+          vfioDevices = RTX2080SuperPCIDevices ++ RaphaeliGPUPCIDevices;
+        };
+        custom.nvidia.enable = false;
+      };
+      "VFIO-RTX2080S_Navi".configuration = {
+        system.nixos.tags = [ "RTX2080S-VFIO" "Navi-VFIO" ];
         custom.virtualisation.vfio = {
           blacklistNvidia = true;
           vfioDevices = RTX2080SuperPCIDevices ++ RaphaeliGPUPCIDevices;
@@ -176,7 +184,7 @@ in
   # Enable the GNOME Desktop Environment.
   services.xserver.displayManager.gdm.enable = true;
   services.xserver.desktopManager.gnome.enable = true;
-  
+
   # See https://nixos.wiki/wiki/GNOME/Calendar
   programs.dconf.enable = true;
   services.gnome.evolution-data-server.enable = true;
@@ -214,6 +222,9 @@ in
 
   # Enable custom Minecraft setup
   custom.gaming.steam.enable = true;
+  
+  # Enable custom Retro Gaming
+  custom.gaming.retrogaming.enable = true;
 
   ## Virtualisation
   # Enable vfio and virtualisation setup
@@ -225,7 +236,7 @@ in
 
   # Disable nvidia since for VFIO passthrough
   custom.nvidia.enable = lib.mkDefault false;
-  
+
   # Enable both declarative VMs
   custom.virtualisation.vms.fancontrol-microvm.enable = lib.mkDefault true;
   custom.virtualisation.vms.win10-libvirtd.enable = lib.mkDefault true;

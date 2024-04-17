@@ -1,3 +1,3 @@
 {
-  imports = [ ./minecraft.nix ./steam.nix];
+  imports = [ ./minecraft.nix ./steam.nix ./retrogaming.nix ];
 }
