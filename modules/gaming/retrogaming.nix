@@ -10,6 +10,21 @@ in
 
   config = mkIf cfg.enable
     {
+      security.pam.loginLimits = [
+        {
+          domain = "christopher";
+          item = "memlock";
+          type = "hard";
+          value = "2147483648"; # 2147483648
+        }
+        {
+          domain = "christopher";
+          item = "memlock";
+          type = "soft";
+          value = "2147483648"; # 2147483648
+        }
+      ];
+
       users.users.christopher = {
         packages = with pkgs; [
           (retroarch.override {
@@ -18,6 +33,9 @@ in
             ];
           })
           dolphin-emu
+          cemu
+          rpcs3
+          pcsx2
         ];
       };
     };
