@@ -82,7 +82,7 @@ in
                   "browser.newtabpage.activity-stream.system.showSponsored" = lock-false;
                   "browser.newtabpage.activity-stream.showSponsoredTopSites" = lock-false;
                 };
-              extensions = with firefox-addons.packages.${pkgs.system}; [ ublock-origin bitwarden darkreader multi-account-containers darkreader ];
+              extensions = with firefox-addons.packages.${pkgs.system}; [ ublock-origin bitwarden darkreader multi-account-containers darkreader zotero-connector ];
               containers = {
                 "Dangerous" = {
                   color = "red";
