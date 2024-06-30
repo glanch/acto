@@ -11,6 +11,7 @@ in
   config = mkIf cfg.enable
     {
       programs.steam = {
+        package = pkgs.unstable.steam;
         enable = true;
         gamescopeSession.enable = true;
       };

@@ -54,7 +54,8 @@ in
     ];
 
 
-  specialisation =
+  /*
+    specialisation =
 
     {
       "NoPassthrough-NVidiaDriver".configuration = {
@@ -123,6 +124,8 @@ in
         custom.nvidia.enable = false;
       };
     };
+  
+    */
   # Enable flakes
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
 
@@ -222,7 +225,7 @@ in
 
   # Enable custom Minecraft setup
   custom.gaming.steam.enable = true;
-  
+
   # Enable custom Retro Gaming
   custom.gaming.retrogaming.enable = true;
 
@@ -273,7 +276,17 @@ in
       htop
       anki
       zotero
+      languagetool
+      ltex-ls
+      evince
+      joplin
+      joplin-desktop
     ];
+  };
+
+  programs.java = {
+    enable = true;
+    #package = pkgs.jdk11;
   };
 
   programs.corectrl.enable = true;
@@ -308,7 +321,13 @@ in
     unigine-valley
     pciutils
     fend
+    cryptomator
   ];
+
+  xdg.portal.config.common = {
+    default = [ "gtk" ];
+    "org.freedesktop.impl.portal.Secret" = [ "gnome-keyring" ];
+  };
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.

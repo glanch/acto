@@ -7,9 +7,14 @@
   boot.kernelParams = [ "amdgpu.ppfeaturemask=0xfff7ffff" ];
 
   # Enable OpenGL
-/*   hardware.opengl = {
+  hardware.opengl = {
     enable = true;
     driSupport = true;
     driSupport32Bit = true;
-  }; */
+
+    extraPackages = [ pkgs.amdvlk ];
+    extraPackages32 = [ pkgs.driversi686Linux.amdvlk ];
+
+
+  };
 }
