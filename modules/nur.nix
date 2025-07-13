@@ -1,7 +1,7 @@
 { nur, ... }:
 {
   imports = [
-    nur.nixosModules.nur
+    nur.modules.nixos.default
   ];
 }
 

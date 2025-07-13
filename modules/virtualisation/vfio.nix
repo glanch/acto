@@ -7,7 +7,8 @@ in
   imports = [
     nixos-vfio.nixosModules.default
     ./vms/win10-libvirtd.nix
-    ./vms/fancontrol-microvm.nix
+    ./vms/win11-libvirtd.nix
+    ./vms/microvms
   ];
   options.custom.virtualisation.vfio = {
     enable = mkEnableOption "Enable VFIO";
@@ -38,14 +39,23 @@ in
       users.users.christopher = {
         packages = with pkgs; [
           virt-manager
-          moonlightlookingglass.looking-glass-client
-          moonlightlookingglass.moonlight-qt
+          looking-glass-client
+          moonlight-qt
         ];
       };
 
-      environment.systemPackages = with pkgs; [ swtpm ];
+      environment.systemPackages = with pkgs; [
+        swtpm
+        virt-manager
+        virt-viewer
+        spice
+        spice-gtk
+        spice-protocol
+        win-virtio
+        win-spice
+        virtiofsd
+      ];
       systemd.services.libvirtd.path = [ pkgs.swtpm ];
-
       virtualisation.libvirtd =
         let
           hostCores = "0-7,16-23";
@@ -66,6 +76,13 @@ in
             "/dev/shm/scream"
             "/dev/shm/looking-glass"
           ];
+
+          qemu = {
+            swtpm.enable = true;
+            ovmf.enable = true;
+            ovmf.packages = [ pkgs.OVMFFull.fd ];
+          }; 
+          
           /*           scopedHooks.qemu = {
             "10-activate-core-isolation" = {
               enable = true;
@@ -116,20 +133,21 @@ in
             (permissions // {
               size = 128; # in MiB
             })
-            (permissions // {
-              resolution = {
-                width = 2560;
-                height = 1440;
-                pixelFormat = "rgba32";
-              };
-            })
-            (permissions // {
-              resolution = {
-                width = 3840;
-                height = 2160;
-                pixelFormat = "rgba32";
-              };
-            })
+            # Resolution seems broken: https://github.com/j-brn/nixos-vfio/issues/85
+            # (permissions // {
+            #   resolution = {
+            #     width = 2560;
+            #     height = 1440;
+            #     pixelFormat = "rgba32";
+            #   };
+            # })
+            # (permissions // {
+            #   resolution = {
+            #     width = 3840;
+            #     height = 2160;
+            #     pixelFormat = "rgba32";
+            #   };
+            # })
           ];
       };
 

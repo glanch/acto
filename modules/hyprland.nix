@@ -1,4 +1,4 @@
-{ lib, config, pkgs, hyprland, nixpkgs-unstable, ... }:
+{ lib, config, pkgs, hyprland, nixpkgs-unstable, walker, ... }:
 with lib;
 let
   # Shorter name to access final settings a 
@@ -30,6 +30,9 @@ in
     # Hyprland
     programs.hyprland = {
       enable = true;
+      withUWSM = true;
+      #package = nixpkgs-unstable.legacyPackages.${pkgs.system}.hyprland;
+      #package = hyprland.packages.${pkgs.system}.hyprland;
     };
 
     # Light daemon support for backlight
@@ -43,40 +46,156 @@ in
       extraGroups = [ "video" ];
       packages = with pkgs; [
         alacritty # Terminal emulator
-        fuzzel # Launcher
-        swaylock
         grimblast # Screenshot
       ];
     };
-
 
     # Enable playerctl
     custom.media.playerctl.enable = true;
 
     # Fonts for hyprland theme
-    fonts.packages = with pkgs; [
+    fonts.packages = with pkgs; ([
       font-awesome
-      (nerdfonts.override { fonts = [ "FiraCode" "Agave" "Hack" "DroidSansMono" ]; }) # Fonts for waybar
-    ];
+    ] ++ (with nerd-fonts; [ fira-code agave hack droid-sans-mono ]));
 
     # Enable hyprpaper
     custom.hyprpaper.enable = true;
 
     # Set display targetwallpapers
-    custom.hyprpaper.target = [ "DP-1" "HDMI-A-1" ];
+    custom.hyprpaper.target = [ "DP-1" "DP-2" "HDMI-A-1" ];
 
     # Set wallpaper
     custom.hyprpaper.wallpaperFile = "${../assets/wallpapers/LatourdeCarol.jpg}";
 
     # Configure everything with homemanager
     home-manager.users.christopher = { ... }: {
-      # TODO: check if this module makes sense
-      /* imports = [ hyprland.homeManagerModules.default]; */
+      imports = [
+        walker.homeManagerModules.default
+      ];
+
+      programs.walker = {
+        enable = true;
+        runAsService = true;
+        package = pkgs.walker;
+      };
+      services.hypridle = {
+        enable = true;
+
+        settings = {
+          general = {
+            after_sleep_cmd = "hyprctl dispatch dpms on";
+            ignore_dbus_inhibit = false;
+            lock_cmd = "${pkgs.hyprlock}/bin/hyprlock";
+          };
+
+          listener = [
+            {
+              timeout = 900;
+              on-timeout = "${pkgs.hyprlock}/bin/hyprlock";
+            }
+          ];
+        };
+
+      };
+
+      home.pointerCursor = {
+        gtk.enable = true;
+        # x11.enable = true;
+        package = pkgs.phinger-cursors;
+        name = "phinger-cursors-light";
+        size = 32;
+      };
+
+      gtk = {
+        enable = true;
+        theme = {
+          package = pkgs.flat-remix-gtk;
+          name = "Flat-Remix-GTK-Grey-Darkest";
+        };
+
+        iconTheme = {
+          package = pkgs.adwaita-icon-theme;
+          name = "Adwaita";
+        };
+
+        font = {
+          name = "Fira Sans";
+          size = 11;
+        };
+      };
 
       # Notification daemon
       services.dunst.enable = true;
 
       wayland.windowManager.hyprland.enable = true;
+
+      programs.hyprlock = {
+        enable = true;
+        settings = {
+          # inspiration from https://github.com/justinmdickey/publicdots/blob/main/.config/hypr/hyprlock.conf
+          background = [
+            {
+              path = "screenshot";
+              blur_passes = 3; # 0 disables blurring
+              blur_size = 8;
+              noise = 1.17e-2;
+            }
+          ];
+
+          label = map
+            (m:
+              {
+                monitor = m;
+                text = "$TIME";
+                color = "rgba(242, 243, 244, 0.75)";
+                font_size = 95;
+                font_family = "JetBrains Mono";
+                position = "0, 300";
+                halign = "center";
+                valign = "center";
+              }) [ "DP-2" "HDMI-A-1" ] ++ # Show time left/right monitors
+          [{
+
+            monitor = "DP-1";
+            text = ''cmd[update:1000] echo $(date +"%A, %B %d")'';
+            color = "rgba(242, 243, 244, 0.75)";
+            font_size = 22;
+            font_family = "JetBrains Mono";
+            position = "0, 200";
+            halign = "center";
+            valign = "center";
+
+          }]; # Password on center
+
+          image = {
+            path = "${../assets/profile/duck.jpg}";
+            position = "0, 50";
+            halign = "center";
+            valign = "center";
+          };
+
+          input-field = {
+            monitor = "DP-1";
+            size = "200,50";
+            outline_thickness = 2;
+            dots_size = 0.2; # Scale of input-field height, 0.2 - 0.8
+            dots_spacing = 0.35; # Scale of dots' absolute size, 0.0 - 1.0
+            dots_center = true;
+            outer_color = "rgba(0, 0, 0, 0)";
+            inner_color = "rgba(0, 0, 0, 0.2)";
+            font_color = "rgb(111, 45, 104)";
+            fade_on_empty = false;
+            rounding = -1;
+            check_color = "rgb(30, 107, 204)";
+            placeholder_text = ''<i><span foreground="##cdd6f4">Input Password...</span></i>'';
+            hide_input = false;
+            position = "0, -150";
+            halign = "center";
+            valign = "center";
+          };
+        };
+      };
+
       # Use Hyprland from Unstable
       # wayland.windowManager.hyprland.package = nixpkgs-unstable.legacyPackages.${pkgs.system}.hyprland;
 
@@ -89,164 +208,177 @@ in
 
         in
         ''
-          $mod = SUPER
-          bind=$mod,F,fullscreen
-          bind=$mod,M, exec, swaylock
-          bind = , Print, exec, grimblast copy area
+                    $mod = SUPER
+                    bind=$mod,F,fullscreen
+                    bind=$mod,M, exec, ${pkgs.hyprlock}/bin/hyprlock
+                    bind = , Print, exec, grimblast copy area
 
-          # workspaces
-          # binds $mod + [shift +] {1..10} to [move to] workspace {1..10}
-          ${builtins.concatStringsSep "\n" (builtins.genList (
-              x: let
-                ws = let
-                  c = (x + 1) / 10;
-                in
-                  builtins.toString (x + 1 - (c * 10));
-              in ''
-                bind = $mod, ${ws}, workspace, ${toString (x + 1)}
-                bind = $mod SHIFT, ${ws}, movetoworkspace, ${toString (x + 1)}
-              ''
-            )
-            10)}
+                    # workspaces
+                    # binds $mod + [shift +] {1..10} to [move to] workspace {1..10}
+                    ${builtins.concatStringsSep "\n" (builtins.genList (
+                        x: let
+                          ws = let
+                            c = (x + 1) / 10;
+                          in
+                            builtins.toString (x + 1 - (c * 10));
+                        in ''
+                          bind = $mod, ${ws}, workspace, ${toString (x + 1)}
+                          bind = $mod SHIFT, ${ws}, movetoworkspace, ${toString (x + 1)}
+                        ''
+                      )
+                      10)}
 
-            autogenerated = 0 # remove this line to remove the warning
-            # See https://wiki.hyprland.org/Configuring/Monitors/
-            monitor=HDMI-A-1,1920x1080,0x0,1
-            monitor=DP-1,3840x2160,1920x0,1.5
+                      autogenerated = 0 # remove this line to remove the warning
+                      # See https://wiki.hyprland.org/Configuring/Monitors/
+                      ${
+                        let
+                          rotate = false;
+                          leftMostWidth = if rotate then 1080 else 1920;
+                          leftMostHeight = if rotate then 1920 else 1080;
+                          leftMostTransform = if rotate then 3 else 0;
+                        in
+          '' 
+                      monitor=HDMI-A-1,1920x1080,0x0,1,transform,${toString leftMostTransform}
+                      monitor=DP-1,3840x2160,${toString leftMostWidth}x0,1.5
+                      monitor=DP-2,3840x2160,${toString (2560+leftMostWidth)}x0,1.5
+          ''
+              }
 
+                      # See https://wiki.hyprland.org/Configuring/Keywords/ for more
 
-            # See https://wiki.hyprland.org/Configuring/Keywords/ for more
+                      # Execute your favorite apps at launch
 
-            # Execute your favorite apps at launch
+                      # Bar
+                      ${if config.custom.hyprpaper.enable then "exec-once = hyprpaper-withconfig" else ""} 
 
-            # Bar
-            exec-once = waybar ${if config.custom.hyprpaper.enable then "& hyprpaper-withconfig" else ""} 
-
-            # Idle script
-            exec-once = ${swayidleScript}
-
-            # Polkit authentication agent
-            exec-once = ${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1
+                      # Polkit authentication agent
+                      exec-once = ${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1
             
-            # Source a file (multi-file configs)
-            # source = ~/.config/hypr/myColors.conf
+                      # Source a file (multi-file configs)
+                      # source = ~/.config/hypr/myColors.conf
 
-            # For all categories, see https://wiki.hyprland.org/Configuring/Variables/
-            input {
-                kb_layout = de
-                kb_variant =
-                kb_model =
-                kb_options =
-                kb_rules =
+                      # For all categories, see https://wiki.hyprland.org/Configuring/Variables/
+                      input {
+                          kb_layout = de
+                          kb_variant =
+                          kb_model =
+                          kb_options =
+                          kb_rules =
 
-                follow_mouse = 1
+                          follow_mouse = 1
 
-                touchpad {
-                    natural_scroll = yes
-                }
+                          touchpad {
+                              natural_scroll = yes
+                          }
 
-                sensitivity = 0 # -1.0 - 1.0, 0 means no modification.
-            }
+                          sensitivity = 0 # -1.0 - 1.0, 0 means no modification.
+                      }
 
-            general {
-                # See https://wiki.hyprland.org/Configuring/Variables/ for more
+                      general {
+                          # See https://wiki.hyprland.org/Configuring/Variables/ for more
 
-                gaps_in = 1
-                gaps_out = 1
-                border_size = 2
-                col.active_border = rgba(33ccffee) rgba(00ff99ee) 45deg
-                col.inactive_border = rgba(595959aa)
+                          gaps_in = 1
+                          gaps_out = 1
+                          border_size = 2
+                          col.active_border = rgba(33ccffee) rgba(00ff99ee) 45deg
+                          col.inactive_border = rgba(595959aa)
 
-                layout = dwindle
+                          layout = dwindle
 
-                resize_on_border = true
-            }
+                          resize_on_border = true
+                      }
 
-            animations {
-                enabled = yes
+                      animations {
+                          enabled = yes
 
-                # Some default animations, see https://wiki.hyprland.org/Configuring/Animations/ for more
+                          # Some default animations, see https://wiki.hyprland.org/Configuring/Animations/ for more
 
-                bezier = myBezier, 0.05, 0.9, 0.1, 1.05
+                          bezier = myBezier, 0.05, 0.9, 0.1, 1.05
 
-                animation = windows, 1, 7, myBezier
-                animation = windowsOut, 1, 7, default, popin 80%
-                animation = border, 1, 10, default
-                animation = fade, 1, 7, default
-                animation = workspaces, 1, 6, default
-            }
+                          animation = windows, 1, 7, myBezier
+                          animation = windowsOut, 1, 7, default, popin 80%
+                          animation = border, 1, 10, default
+                          animation = fade, 1, 7, default
+                          animation = workspaces, 1, 6, default
+                      }
 
-            dwindle {
-                # See https://wiki.hyprland.org/Configuring/Dwindle-Layout/ for more
-                pseudotile = yes # master switch for pseudotiling. Enabling is bound to mainMod + P in the keybinds section below
-                preserve_split = yes # you probably want this
-            }
+                      cursor {
+                        enable_hyprcursor = false
+                      }
+                      env = HYPRCURSOR_THEME,MyCursor
+                      env = HYPRCURSOR_SIZE,32
 
-            master {
-                # See https://wiki.hyprland.org/Configuring/Master-Layout/ for more
-                new_is_master = true
-            }
+                      dwindle {
+                          # See https://wiki.hyprland.org/Configuring/Dwindle-Layout/ for more
+                          pseudotile = yes # master switch for pseudotiling. Enabling is bound to mainMod + P in the keybinds section below
+                          preserve_split = yes # you probably want this
+                      }
 
-            gestures {
-                # See https://wiki.hyprland.org/Configuring/Variables/ for more
-                workspace_swipe = on
-            }
+                      master {
+                          # See https://wiki.hyprland.org/Configuring/Master-Layout/ for more
+                          new_status = "master"
+                      }
 
-            # Example per-device config
-            # See https://wiki.hyprland.org/Configuring/Keywords/#executing for more
+                      gestures {
+                          # See https://wiki.hyprland.org/Configuring/Variables/ for more
+                          workspace_swipe = on
+                      }
 
-            $mainMod = SUPER
+                      # Example per-device config
+                      # See https://wiki.hyprland.org/Configuring/Keywords/#executing for more
 
-            # Example binds, see https://wiki.hyprland.org/Configuring/Binds/ for more
-            bind = $mainMod, Q, exec, alacritty
-            bind = $mainMod SHIFT, Q, killactive,
-            bind = $mainMod SHIFT ALT, Q, exit,
-            bind = $mainMod, E, exec, nautilus
-            bind = $mainMod, space, togglefloating,
-            bind = $mainMod, D, exec, fuzzel
-            bind = $mainMod, P, pseudo, # dwindle
-            bind = $mainMod, S, togglesplit, # dwindle
+                      $mainMod = SUPER
 
-            # Move focus with mainMod + arrow keys
-            bind = $mainMod,H, movefocus, l
-            bind = $mainMod,L, movefocus, r
-            bind = $mainMod,J, movefocus, u
-            bind = $mainMod,K, movefocus, d
+                      # Example binds, see https://wiki.hyprland.org/Configuring/Binds/ for more
+                      bind = $mainMod, Q, exec, alacritty
+                      bind = $mainMod SHIFT, Q, killactive,
+                      bind = $mainMod SHIFT ALT, Q, exit,
+                      bind = $mainMod, E, exec, nautilus
+                      bind = $mainMod, space, togglefloating,
+                      bind = $mainMod, D, exec, ${pkgs.walker}/bin/walker
+                      bind = $mainMod, P, pseudo, # dwindle
+                      bind = $mainMod, S, togglesplit, # dwindle
 
-            # Scroll through existing workspaces with mainMod + scroll
-            bind = $mainMod, mouse_down, workspace, e+1
-            bind = $mainMod, mouse_up, workspace, e-1
+                      # Move focus with mainMod + arrow keys
+                      bind = $mainMod,H, movefocus, l
+                      bind = $mainMod,L, movefocus, r
+                      bind = $mainMod,J, movefocus, u
+                      bind = $mainMod,K, movefocus, d
 
-            # Move/resize windows with mainMod + LMB/RMB and dragging
-            bindm = $mainMod, mouse:272, movewindow
-            bindm = $mainMod, mouse:273, resizewindow
+                      # Scroll through existing workspaces with mainMod + scroll
+                      bind = $mainMod, mouse_down, workspace, e+1
+                      bind = $mainMod, mouse_up, workspace, e-1
 
-            # Brightness control
-            bind=,XF86MonBrightnessDown,exec, light -U ${brightnessDecreaseStep}
-            bind=,XF86MonBrightnessUp,exec, light -A ${brightnessIncreaseStep}
+                      # Move/resize windows with mainMod + LMB/RMB and dragging
+                      bindm = $mainMod, mouse:272, movewindow
+                      bindm = $mainMod, mouse:273, resizewindowf
+
+                      # Brightness control
+                      bind=,XF86MonBrightnessDown,exec, light -U ${brightnessDecreaseStep}
+                      bind=,XF86MonBrightnessUp,exec, light -A ${brightnessIncreaseStep}
 
 
-            # Scratchpad
-            bind=$mainMod SHIFT,T,movetoworkspace,special:T
-            bind=$mainMod,T,togglespecialworkspace,T
+                      # Scratchpad
+                      bind=$mainMod SHIFT,T,movetoworkspace,special:T
+                      bind=$mainMod,T,togglespecialworkspace,T
             
-            # Lower and raise volume with hold 
-            binde=, XF86AudioLowerVolume, exec, wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ ${audioDecreasePercent}%-
-            binde=, XF86AudioRaiseVolume, exec, wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ ${audioIncreasePercent}%+
+                      # Lower and raise volume with hold 
+                      binde=, XF86AudioLowerVolume, exec, wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ ${audioDecreasePercent}%-
+                      binde=, XF86AudioRaiseVolume, exec, wpctl set-volume -l 1.5 @DEFAULT_AUDIO_SINK@ ${audioIncreasePercent}%+
 
 
-            # Previous/Play-Pause/Forward on AltGr+(F7/F8/F9)
-            binde=Mod5, F7, exec, playerctl previous
-            binde=Mod5, F8, exec, playerctl play-pause
-            binde=Mod5, F9, exec, playerctl next
+                      # Previous/Play-Pause/Forward on AltGr+(F7/F8/F9)
+                      binde=Mod5, F7, exec, playerctl previous
+                      binde=Mod5, F8, exec, playerctl play-pause
+                      binde=Mod5, F9, exec, playerctl next
 
-            # Mute default output on Fn+F12
-            binde=Mod5, F12, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+                      # Mute default output on Fn+F12
+                      binde=Mod5, F12, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
         '';
-
+      systemd.user.services.waybar.Unit.After = lib.mkForce "graphical-session.target";
       programs.waybar = {
         enable = true;
-        systemd.enable = false;
+        systemd.enable = true;
         style = ''
           * {
             /* `otf-font-awesome` is required to be installed for icons */
@@ -495,6 +627,10 @@ in
             background-color: #bbccdd;
           }
 
+          #tray {
+            background-color: #bbccdd;
+          }
+
           #custom-power {
             background-color: #BBCCDD;
             padding-right: 13px;
@@ -673,7 +809,7 @@ in
               "car" = "";
               "default" = [ "" "" "" ];
             };
-            "on-click" = "pavucontrol";
+            "on-click" = "${pkgs.pavucontrol}/bin/pavucontrol";
           };
           "custom/media" = {
             "format" = "{icon} {}";
@@ -698,7 +834,7 @@ in
       };
     };
 
-    # Without this, swaylock won't unlock
-    security.pam.services.swaylock = { };
+    # Without this, hyprlock won't unlock
+    security.pam.services.hyprlock = { };
   };
 }

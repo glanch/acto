@@ -27,11 +27,9 @@ in
 
       users.users.christopher = {
         packages = with pkgs; [
-          (retroarch.override {
-            cores = with libretro; [
-              dolphin
-            ];
-          })
+          (pkgs.retroarch.withCores (cores: with cores; [
+            dolphin
+          ]))
           dolphin-emu
           cemu
           rpcs3

@@ -1,20 +1,28 @@
 {
   # nixpkgs
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-23.11";
+  nixConfig = {
+    extra-substituters = [
+      "https://colmena.cachix.org"
+      "https://hyprland.cachix.org"
+      "https://ai.cachix.org"
+      "https://nix-community.cachix.org"
+    ];
+  };
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.05";
   inputs.nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
 
   # Fractional Scaling Fixes for Moonlight / Looking Glass Client
   inputs.nixpkgs-moonlightlookingglassfix.url = "github:glanch/nixpkgs/moonshine-looking-glass";
 
-  # Hyprland
+  # Hyprlandg
   inputs.hyprland = {
     url = "github:hyprwm/Hyprland";
-    inputs.nixpkgs.follows = "nixpkgs";
+    #inputs.nixpkgs.follows = "nixpkgs";
   };
 
   # Home Manager
   inputs.home-manager = {
-    url = "github:nix-community/home-manager/release-23.11";
+    url = "github:nix-community/home-manager/release-25.05";
     inputs.nixpkgs.follows = "nixpkgs";
   };
 
@@ -49,8 +57,14 @@
 
   inputs.nix-colors.url = "github:misterio77/nix-colors";
 
+  # Music Production Enhancement
+  inputs.musnix.url = "github:musnix/musnix";
+  
+  # Custom dmenu
+  inputs.walker.url = "github:abenz1267/walker";
+
   outputs =
-    { self, nixpkgs, home-manager, deploy-rs, agenix, disko, hyprland, nix-vscode-extensions, nur, firefox-addons, nixos-vfio, nixpkgs-unstable, microvm, nix-colors, ... }@attrs:
+    { self, nixpkgs, home-manager, deploy-rs, agenix, disko, hyprland, nix-vscode-extensions, nur, firefox-addons, nixos-vfio, nixpkgs-unstable, microvm, nix-colors, musnix, walker, ... }@attrs:
 
     let
       system = "x86_64-linux";
@@ -76,15 +90,5 @@
       };
 
       checks = builtins.mapAttrs (system: deployLib: deployLib.deployChecks self.deploy) deploy-rs.lib;
-      nixConfig = {
-        extra-substituters = [
-          "https://colmena.cachix.org"
-          "https://hyprland.cachix.org"
-        ];
-        extra-trusted-public-keys = [
-          "colmena.cachix.org-1:7BzpDnjjH8ki2CT3f6GdOk7QAzPOl+1t3LvTLXqYcSg="
-          "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
-        ];
-      };
     };
 }

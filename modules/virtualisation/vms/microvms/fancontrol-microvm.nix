@@ -1,14 +1,13 @@
 # microvm refers to microvm.nixosModules
-{ lib, config, pkgs, microvm, ... }:
+{ nixpkgs, lib, config, pkgs, microvm, ... }:
 with lib;
 let
   cfg = config.custom.virtualisation.vms.fancontrol-microvm;
-  sshPubKey = builtins.readFile ../../../identities/acto/christopher.pub;
+  sshPubKey = builtins.readFile ../../../../identities/acto/christopher.pub;
 
 
 in
 {
-  imports = [ microvm.nixosModules.host ];
 
   options.custom.virtualisation.vms.fancontrol-microvm = {
     enable = mkEnableOption "Enable fancontrol microvm VM with RTX2080 Super passthrough";
@@ -20,13 +19,9 @@ in
 
   config =
     let
-      hostIPv4Address = "10.5.10.1/24";
-      vmIPv4Address = "10.5.10.5";
-      vmMacAddress = "02:00:00:00:00:01";
-      vmTapId = "vm-fancontrol";
-      bridgeName = "br-fancontrol";
-
-
+      maxVMs = 5;
+      index = 4;
+      mac = "00:00:00:00:00:08";
     in
     lib.mkIf cfg.enable
       {
@@ -36,48 +31,33 @@ in
         }];
 
         systemd.network = {
-          netdevs."10-microvm".netdevConfig = {
-            Kind = "bridge";
-            Name = bridgeName;
-          };
-
-          networks."10-microvm" =
-            {
-              matchConfig.Name = bridgeName;
-              networkConfig = {
-                DHCPServer = true;
-                IPv6SendRA = true;
-              };
-              addresses = [
-                {
-                  addressConfig.Address = hostIPv4Address;
-                }
-                {
-                  addressConfig.Address = "fd12:3456:789a::1/64";
-                }
-              ];
-              dhcpServerStaticLeases = [
-                {
-                  dhcpServerStaticLeaseConfig = {
-                    Address = vmIPv4Address;
-                    MACAddress = vmMacAddress;
+          networks = builtins.listToAttrs (
+            map
+              (index: {
+                name = "30-vm${toString index}";
+                value = {
+                  matchConfig.Name = "vm${toString index}";
+                  # Host's addresses
+                  address = [
+                    "10.0.0.0/32"
+                    "fec0::/128"
+                  ];
+                  # Setup routes to the VM
+                  routes = [{
+                    Destination = "10.0.0.${toString index}/32";
+                  }
+                    {
+                      Destination = "fec0::${lib.toHexString index}/128";
+                    }];
+                  # Enable routing
+                  networkConfig = {
+                    IPv4Forwarding = true;
+                    IPv6Forwarding = true;
                   };
-                }
-              ];
-              ipv6Prefixes = [{
-                ipv6PrefixConfig.Prefix = "fd12:3456:789a::/64";
-              }];
-            };
-        };
-
-        nixpkgs.config.allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
-          "nvidia-x11"
-        ];
-
-        systemd.network.networks."11-microvm" = {
-          matchConfig.Name = vmTapId;
-          # Attach to the bridge that was configured above
-          networkConfig.Bridge = bridgeName;
+                };
+              })
+              (lib.genList (i: i + 1) maxVMs)
+          );
         };
 
         systemd.services."microvm@fancontrol".serviceConfig.ExecCondition =
@@ -93,14 +73,19 @@ in
             fi
           '';
 
-
         microvm.vms = {
           fancontrol = {
             unbindPciDevices = false;
             autostart = true;
-            # The package set to use for the microvm. This also determines the microvm's architecture.
-            # Defaults to the host system's package set if not given.
-            /* pkgs = import nixpkgs { system = pkgs.system; };*/
+            pkgs = import nixpkgs {
+              config = {
+                allowUnfree = true;
+                allowUnfreePredicate = pkg: builtins.elem (lib.getName pkg) [
+                  "nvidia-x11"
+                ];
+              };
+              system = pkgs.system;
+            };
 
             # (Optional) A set of special arguments to be passed to the MicroVM's NixOS modules.
             #specialArgs = {};
@@ -108,6 +93,53 @@ in
             # The configuration for the MicroVM.
             # Multiple definitions will be merged as expected.
             config = {
+              microvm.interfaces = [{
+                id = "vm${toString index}";
+                type = "tap";
+                inherit mac;
+              }];
+
+              networking.useNetworkd = true;
+
+              systemd.network.networks."10-eth" = {
+                matchConfig.MACAddress = mac;
+                # Static IP configuration
+                address = [
+                  "10.0.0.${toString index}/32"
+                  "fec0::${lib.toHexString index}/128"
+                ];
+                routes = [{
+                  # A route to the host
+                  Destination = "10.0.0.0/32";
+                  GatewayOnLink = true;
+                }
+                  {
+                    # Default route
+                    Destination = "0.0.0.0/0";
+                    Gateway = "10.0.0.0";
+                    GatewayOnLink = true;
+                  }
+                  {
+                    # Default route
+                    Destination = "::/0";
+                    Gateway = "fec0::";
+                    GatewayOnLink = true;
+                  }];
+                networkConfig = {
+                  # DNS servers no longer come from DHCP nor Router
+                  # Advertisements. Perhaps you want to change the defaults:
+                  DNS = [
+                    # Quad9.net
+                    "9.9.9.9"
+                    "149.112.112.112"
+                    "2620:fe::fe"
+                    "2620:fe::9"
+                  ];
+                };
+              };
+
+
+              system.stateVersion = "23.11";
               # It is highly recommended to share the host's nix-store
               # with the VMs to prevent building huge images.
               microvm.shares = [{
@@ -123,22 +155,13 @@ in
                   path = "0000:18:00.0";
                 }
               ];
-              microvm.interfaces = [
-                {
-                  type = "tap";
-                  id = vmTapId;
-                  mac = vmMacAddress;
-                }
-              ];
 
               # Just use 99-ethernet-default-dhcp.network
               systemd.network.enable = true;
 
               # Enable OpenGL
-              hardware.opengl = {
+              hardware.graphics = {
                 enable = true;
-                driSupport = true;
-                driSupport32Bit = true;
               };
               services.xserver = {
                 enable = true;
@@ -178,9 +201,10 @@ in
 
               networking.hostName = cfg.hostname;
 
-              environment.systemPackages = [
-                pkgs.pciutils
-                pkgs.lm_sensors
+              environment.systemPackages = with pkgs; [
+                pciutils
+                lm_sensors
+                nvtopPackages.nvidia
               ];
 
               users.mutableUsers = false;
@@ -199,8 +223,14 @@ in
         # Add entry to hosts as cheap DNS resolution of cfg.hostname
         networking.extraHosts =
           ''
-            ${vmIPv4Address} ${cfg.hostname}
+            fec0::1 ${cfg.hostname}
           '';
+        networking.nat = {
+          enable = true;
+          internalIPs = [ "10.0.0.0/24" ];
+          # Change this to the interface with upstream Internet access
+          externalInterface = "wlp14s0";
+        };
       };
 }
 

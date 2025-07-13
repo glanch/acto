@@ -2,7 +2,7 @@
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running `nixos-help`).
 
-{ config, lib, pkgs, home-manager, agenix, disko, nur, nixpkgs-unstable, nixpkgs-moonlightlookingglassfix, ... }:
+{ config, lib, pkgs, home-manager, agenix, disko, nur, nixpkgs-unstable, nixpkgs-moonlightlookingglassfix, musnix, ... }:
 
 let
   sshPubKey = builtins.readFile ./identities/acto/christopher.pub;
@@ -37,6 +37,7 @@ in
       home-manager.nixosModules.default
       agenix.nixosModules.default
       disko.nixosModules.default
+      musnix.nixosModules.musnix
       ./hardware-configuration.nix
       ./modules/networking
       ./modules/shell.nix
@@ -44,6 +45,7 @@ in
       ./modules/media
       ./modules/gaming
       ./modules/communication
+      ./modules/specializations.nix
       ./modules/nix-path.nix
       ./modules/vscodium.nix
       ./modules/nur.nix
@@ -53,82 +55,25 @@ in
       ./modules/hardware/nvidia.nix
     ];
 
+  musnix.enable = true;
+  musnix.rtcqs.enable = true;
 
-  /*
-    specialisation =
 
-    {
-      "NoPassthrough-NVidiaDriver".configuration = {
-        custom = {
-          virtualisation.vfio = {
-            blacklistNvidia = false;
-            vfioDevices = [ ];
-          };
-
-          virtualisation.vms.fancontrol-microvm.enable = false;
-
-          nvidia.enable = true;
-
-        };
-      };
-      "NoPassthrough-Offloading".configuration = {
-        custom = {
-          virtualisation.vfio = {
-            blacklistNvidia = false;
-            vfioDevices = [ ];
-          };
-
-          virtualisation.vms.fancontrol-microvm.enable = false;
-
-          nvidia.enable = true;
-          nvidia.offloading = true;
-
-        };
-      };
-      "VFIO-Raphael".configuration = {
-        system.nixos.tags = [ "Raphael-VFIO" ];
-        custom = {
-          virtualisation.vfio = {
-            blacklistNvidia = false;
-            vfioDevices = RaphaeliGPUPCIDevices;
-          };
-
-          virtualisation.vms.fancontrol-microvm.enable = false;
-
-          nvidia.enable = false;
-        };
-
-      };
-      "VFIO-RTX2080S".configuration = {
-        system.nixos.tags = [ "RTX2080S-VFIO" ];
-        custom.virtualisation.vfio = {
-          blacklistNvidia = true;
-          vfioDevices = RTX2080SuperPCIDevices;
-        };
-        custom.nvidia.enable = false;
-      };
-      "VFIO-RTX2080S_Raphael".configuration = {
-        system.nixos.tags = [ "RTX2080S-VFIO" "Raphael-VFIO" ];
-        custom.virtualisation.vfio = {
-          blacklistNvidia = true;
-          vfioDevices = RTX2080SuperPCIDevices ++ RaphaeliGPUPCIDevices;
-        };
-        custom.nvidia.enable = false;
-      };
-      "VFIO-RTX2080S_Navi".configuration = {
-        system.nixos.tags = [ "RTX2080S-VFIO" "Navi-VFIO" ];
-        custom.virtualisation.vfio = {
-          blacklistNvidia = true;
-          vfioDevices = RTX2080SuperPCIDevices ++ RaphaeliGPUPCIDevices;
-        };
-        custom.nvidia.enable = false;
-      };
-    };
-  
-    */
   # Enable flakes
   nix.settings.experimental-features = [ "nix-command" "flakes" ];
-
+  nix.settings = {
+    trusted-users = [ "christopher" ];
+    extra-substituters = [
+      "https://colmena.cachix.org"
+      "https://hyprland.cachix.org"
+      "https://nix-community.cachix.org"
+    ];
+    extra-trusted-public-keys = [
+      "colmena.cachix.org-1:7BzpDnjjH8ki2CT3f6GdOk7QAzPOl+1t3LvTLXqYcSg="
+      "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
+      "nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="
+    ];
+  };
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
 
@@ -142,13 +87,18 @@ in
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
 
+  # binfmt for pi building
+  boot.binfmt.emulatedSystems = [ "aarch64-linux" ];
   # Networking: see modules/networking/general.nix
 
   ## Time and Location
 
   # Set your time zone.
   time.timeZone = "Europe/Berlin";
-
+  fonts.packages = with pkgs; [
+    texlivePackages.cm
+    cm_unicode
+  ];
   # Select internationalisation properties.
   i18n.defaultLocale = "en_US.UTF-8";
   console = {
@@ -196,6 +146,9 @@ in
   services.gvfs.enable = true;
 
   ## Media
+  # Printing
+  services.printing.enable = true;
+
   # Enable pipewire setup
   custom.media.pipewire.enable = true;
 
@@ -242,7 +195,9 @@ in
 
   # Enable both declarative VMs
   custom.virtualisation.vms.fancontrol-microvm.enable = lib.mkDefault true;
+  custom.virtualisation.vms.localllm-microvm.enable = lib.mkDefault true;
   custom.virtualisation.vms.win10-libvirtd.enable = lib.mkDefault true;
+  custom.virtualisation.vms.win11-libvirtd.enable = lib.mkDefault true;
 
   # Enable docker
   custom.virtualisation.docker.enable = true;
@@ -277,7 +232,6 @@ in
       anki
       zotero
       languagetool
-      ltex-ls
       evince
       joplin
       joplin-desktop
@@ -321,13 +275,33 @@ in
     unigine-valley
     pciutils
     fend
-    cryptomator
+    xdg-utils
   ];
 
-  xdg.portal.config.common = {
-    default = [ "gtk" ];
-    "org.freedesktop.impl.portal.Secret" = [ "gnome-keyring" ];
+  services.flatpak.enable = true;
+
+  xdg.portal = {
+    enable = true;
+    xdgOpenUsePortal = false;
+    config = {
+      common.default = [ "gtk" ];
+      Hyprland.default = [ "gtk" "hyprland" ];
+    };
+    wlr.enable = true;
+
+    extraPortals = [
+      #pkgs.xdg-desktop-portal-hyprland
+    ];
   };
+
+  systemd.user.extraConfig = ''
+    DefaultEnvironment="PATH=/run/wrappers/bin:/etc/profiles/per-user/%u/bin:/nix/var/nix/profiles/default/bin:/run/current-system/sw/bin"
+  '';
+
+  #xdg.portal.config.common = {
+  #  default = [ "gtk" ];
+  #  "org.freedesktop.impl.portal.Secret" = [ "gnome-keyring" ];
+  #};
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.

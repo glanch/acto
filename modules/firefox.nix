@@ -18,12 +18,7 @@ in
       xdg = {
         portal = {
           enable = true;
-          # TODO: check if this is really necessary
-          # It seems that hyprland does not work with xdg-desktop-portal-hyprland as extraPortals
-          extraPortals = with pkgs; [
-            /* xdg-desktop-portal-hyprland */
-          ];
-
+          xdgOpenUsePortal = false;
         };
       };
 
@@ -82,7 +77,8 @@ in
                   "browser.newtabpage.activity-stream.system.showSponsored" = lock-false;
                   "browser.newtabpage.activity-stream.showSponsoredTopSites" = lock-false;
                 };
-              extensions = with firefox-addons.packages.${pkgs.system}; [ ublock-origin bitwarden darkreader multi-account-containers darkreader zotero-connector ];
+              extensions.packages = with firefox-addons.packages.${pkgs.system}; [ ublock-origin bitwarden darkreader multi-account-containers darkreader leechblock-ng ];
+              containersForce = true;
               containers = {
                 "Dangerous" = {
                   color = "red";
@@ -162,16 +158,24 @@ in
                       definedAliases = [ "@no" ];
                     };
 
+                    "Nixpkgs Issues" = {
+                      urls = [{ template = "https://github.com/NixOS/nixpkgs/issues?q={searchTerms}"; }];
+                      icon = "https://github.githubassets.com/favicons/favicon-dark.png";
+                      updateInterval = 24 * 60 * 60 * 1000; # every day
+                      definedAliases = [ "@ni" ];
+                    };
+
                     "NixOS Wiki" = {
-                      urls = [{ template = "https://nixos.wiki/index.php?search={searchTerms}"; }];
-                      iconUpdateURL = "https://nixos.wiki/favicon.png";
+                      urls = [{ template = "https://wiki.nixos.org/w/index.php?search={searchTerms}"; }];
+                      icon = "https://nixos.wiki/favicon.png";
                       updateInterval = 24 * 60 * 60 * 1000; # every day
                       definedAliases = [ "@nw" ];
                     };
 
-                    "Bing".metaData.hidden = true;
-                    "Google".metaData.alias = "@g"; # builtin engines only support specifying one additional alias
-                    "DuckDuckGo".metaData.alias = "@ddg"; # builtin engines only support specifying one additional alias
+
+                    bing.metaData.hidden = true;
+                    google.metaData.alias = "@g"; # builtin engines only support specifying one additional alias
+                    ddg.metaData.alias = "@ddg"; # builtin engines only support specifying one additional alias
                   };
                 };
 

@@ -32,6 +32,16 @@ in
         enableBashIntegration = true;
       };
       programs.command-not-found.enable = false;
+
+      # Enable fish
+      programs.fish.enable = true;
+
+      # Set default shell to fish
+      users.users.christopher.shell = pkgs.fish;
+      
+      # Add zsh to /etc/shells
+      environment.shells = with pkgs; [ fish ];
+
     };
 }
 

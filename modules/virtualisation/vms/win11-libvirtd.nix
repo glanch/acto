@@ -1,11 +1,11 @@
 { lib, config, pkgs, ... }:
 with lib;
 let
-  cfg = config.custom.virtualisation.vms.win10-libvirtd;
+  cfg = config.custom.virtualisation.vms.win11-libvirtd;
 in
 {
-  options.custom.virtualisation.vms.win10-libvirtd = {
-    enable = mkEnableOption "Enable Windows 10 libvirtd VM with RTX2080 Super and red USB port passthrough";
+  options.custom.virtualisation.vms.win11-libvirtd = {
+    enable = mkEnableOption "Enable Windows 10 WIP libvirtd VM with RTX2080 Super and red USB port passthrough";
     kvmfr.device = mkOption {
       type = types.str;
       default = "/dev/kvmfr0";
@@ -23,7 +23,7 @@ in
 
   config =
     let
-      vm-name = "win10";
+      vm-name = "win11";
 
       looking-glass-client-vm-cmd = "${if cfg.useUnstableLookingGlass then pkgs.moonlightlookingglass.looking-glass-client else pkgs.looking-glass-client}/bin/looking-glass-client app:shmFile=${cfg.kvmfr.device} -k egl:scale=2";
 
@@ -44,6 +44,7 @@ in
         "Reset" = reset-vm-cmd;
       };
 
+
       # Generate desktop entries for each command
       desktop-entries = mapAttrs'
         (command_name: command: nameValuePair ("${vm-name}-vm-${command_name}") (
@@ -59,17 +60,17 @@ in
       {
         assertions = [{
           assertion = config.custom.virtualisation.vfio.enable;
-          message = "VFIO needs to be enabled for win10-libvirtd VM to function";
+          message = "VFIO needs to be enabled for win11-libvirtd VM to function";
         }];
 
 
         systemd.network = {
           netdevs = {
             # Create the bridge interface
-            "20-virbr-win10-bridged" = {
+            "20-virbr-win11-bridged" = {
               netdevConfig = {
                 Kind = "bridge";
-                Name = "virbr-win10";
+                Name = "virbr-win11";
               };
             };
           };
@@ -81,8 +82,8 @@ in
                linkConfig.RequiredForOnline = "enslaved"; 
             }; */
             # Configure the bridge for its desired function
-            "40-virbr-win10-bridged" = {
-              matchConfig.Name = "virbr-win10";
+            "40-virbr-win11-bridged" = {
+              matchConfig.Name = "virbr-win11";
               bridgeConfig = { };
               # Disable address autoconfig when no IP configuration is required
               #networkConfig.LinkLocalAddressing = "no";
@@ -96,7 +97,7 @@ in
 
         home-manager.users.christopher = { ... }: {
           xdg.desktopEntries = {
-            win10VMstartAndLookingGlass = {
+            "win11-VMstartAndLookingGlass" = {
               name = "${vm-name}: Start VM and Looking Glass";
               exec =
                 let
@@ -115,11 +116,11 @@ in
         };
         networking.nat = {
           enable = true;
-          internalInterfaces = [ "br-win10-nat" ];
+          internalInterfaces = [ "br-win11nat" ];
           externalInterface = "wlp14s0";
           forwardPorts =
             let
-              destinationIp = "192.168.100.128";
+              destinationIp = "192.168.102.128";
               mkForwardPortsEntry = proto: port: {
                 destination = "${destinationIp}:${toString port}";
                 proto = proto;
@@ -133,45 +134,43 @@ in
             map (mkForwardPortsEntry "udp") udpPorts;
         };
         virtualisation.libvirtd = {
-
-
           qemu.networks.declarative = true;
           qemu.networks.networks = {
-            win10-net.config = {
-              bridge.name = "br-win10-nat";
+            win11-net.config = {
+              bridge.name = "br-win11wipnat";
               forward = { mode = "nat"; };
 
               ips = [
                 {
                   family = "ipv4";
-                  address = "192.168.100.2";
+                  address = "192.168.102.2";
                   prefix = 24;
 
                   dhcpRanges = [{
-                    start = "192.168.100.128";
-                    end = "192.168.100.128";
+                    start = "192.168.102.128";
+                    end = "192.168.102.128";
                   }];
                 }
                 {
                   family = "ipv6";
-                  address = "2001:db8:ca2:2::1";
+                  address = "fd12:3456:789a:2::1";
                   prefix = 64;
 
                   dhcpRanges = [{
-                    start = "2001:db8:ca2:2::100";
-                    end = "2001:db8:ca2:2::1ff";
+                    start = "fd12:3456:789a:2::100";
+                    end = "fd12:3456:789a:2::1ff";
                   }];
                 }
               ];
             };
-            win10-net.autostart = true;
+            win11-net.autostart = true;
 
-            win10-bridged.config = {
-              bridge.name = "virbr-win10-bridged";
+            win11-bridged.config = {
+              bridge.name = "virbr-win11-bridged";
               forward = { mode = "bridge"; };
               ips = [ ];
             };
-            win10-bridged.autostart = true;
+            win11-bridged.autostart = true;
           };
 
 
@@ -241,23 +240,23 @@ in
               pciHostDevices = [
                 # Nvidia RTX2080 Super
                 {
-                  sourceAddress = {
-                    bus = "0x18";
-                    slot = "0x00";
-                    function = 0;
-                  };
+                 sourceAddress = {
+                   bus = "0x18";
+                   slot = "0x00";
+                   function = 0;
+                 };
                 }
                 # USB Controller: red port on mainboards port
                 {
-                  sourceAddress = {
-                    bus = "0x19";
-                    slot = "0x00";
-                    function = 3;
-                  };
+                 sourceAddress = {
+                   bus = "0x19";
+                   slot = "0x00";
+                   function = 3;
+                 };
                 }
               ];
 
-              networkInterfaces = [{ sourceNetwork = "win10-net"; }]; # { sourceNetwork = "win10-bridged"; }];
+              networkInterfaces = [{ sourceNetwork = "win11-net"; }];
 
               kvmfr = {
                 device = cfg.kvmfr.device;
@@ -266,11 +265,30 @@ in
               devicesExtraXml = ''
                 <disk type="file" device="disk"> 
                   <driver name="qemu" type="qcow2"/>
-                  <source file="/home/christopher/.qcow-storage/win10/win10.qcow2"/>
+                  <source file="/home/christopher/.qcow-storage/win11/win11.qcow2"/>
                   <backingStore/>
                   <target dev="vdb" bus="sata"/>
                   <address type="drive" controller="0" bus="0" target="0" unit="1"/>
                 </disk>
+                <disk type="file" device="disk"> 
+                  <driver name="qemu" type="qcow2"/>
+                  <source file="/home/christopher/.qcow-storage/win10/win10.qcow2"/>
+                  <backingStore/>
+                  <target dev="vdc" bus="sata"/>
+                  <address type="drive" controller="0" bus="0" target="0" unit="0"/>
+                </disk>
+                
+                <hostdev mode="subsystem" type="usb" managed="yes">
+                  <source>
+                    <vendor id="0x1532"/>
+                    <product id="0x0085"/>
+                  </source>
+                  <address type="usb" bus="0" port="1"/>
+                </hostdev>
+
+                <tpm model="tpm-crb">
+                  <backend type="emulator" version="2.0"/>
+                </tpm>
               '';
             };
           };
