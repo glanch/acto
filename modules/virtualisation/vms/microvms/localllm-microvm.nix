@@ -95,7 +95,7 @@ in
                 system = pkgs.system;
               };
 
-              config = { config, ... }: {
+              config = { nixpkgs, config, ... }: {
                 microvm.interfaces = [{
                   id = "vm${toString index}";
                   type = "tap";
@@ -161,6 +161,12 @@ in
                     tag = "open-webui";
                     source = "state/open-webui";
                     mountPoint = openWebUiStateWrapperContainer;
+                  }
+                  {
+                    proto = "virtiofs";
+                    tag = "tailscale";
+                    source = "token/tailscale";
+                    mountPoint = "/run/tailscale";
                   }
                 ];
                 systemd.tmpfiles.settings."10-open-webui-state" = {
@@ -263,6 +269,12 @@ in
                   # package = config.boot.kernelPackages.nvidiaPackages.stable;
                 };
 
+                services.tailscale = {
+                 enable = true;
+                 openFirewall = true;
+                 authKeyFile = "/run/tailscale/auth";
+               };
+
                 networking.hostName = cfg.hostname;
 
                 environment.systemPackages = with pkgs; [
@@ -289,12 +301,6 @@ in
           ''
             fec0::2 ${cfg.hostname}
           '';
-        networking.nat = {
-          enable = true;
-          internalIPs = [ "10.0.0.0/24" ];
-          # Change this to the interface with upstream Internet access
-          externalInterface = "wlp14s0";
-        };
       };
 }
 

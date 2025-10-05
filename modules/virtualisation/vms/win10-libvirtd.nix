@@ -113,25 +113,7 @@ in
         networking.firewall = {
           enable = false;
         };
-        networking.nat = {
-          enable = true;
-          internalInterfaces = [ "br-win10-nat" ];
-          externalInterface = "wlp14s0";
-          forwardPorts =
-            let
-              destinationIp = "192.168.100.128";
-              mkForwardPortsEntry = proto: port: {
-                destination = "${destinationIp}:${toString port}";
-                proto = proto;
-                sourcePort = port;
-              };
-              tcpPorts = [ 47984 47989 48010 ];
-              udpPorts = [ 47998 47999 48000 48002 48010 ];
-            in
-            map (mkForwardPortsEntry "tcp") tcpPorts
-            ++
-            map (mkForwardPortsEntry "udp") udpPorts;
-        };
+    
         virtualisation.libvirtd = {
 
 

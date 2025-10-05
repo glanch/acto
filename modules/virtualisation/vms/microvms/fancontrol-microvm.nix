@@ -225,12 +225,6 @@ in
           ''
             fec0::1 ${cfg.hostname}
           '';
-        networking.nat = {
-          enable = true;
-          internalIPs = [ "10.0.0.0/24" ];
-          # Change this to the interface with upstream Internet access
-          externalInterface = "wlp14s0";
-        };
       };
 }
 
