@@ -252,7 +252,7 @@ in
                       ${if config.custom.hyprpaper.enable then "exec-once = hyprpaper-withconfig" else ""} 
 
                       # Polkit authentication agent
-                      exec-once = ${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1
+                      #exec-once = ${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1
             
                       # Source a file (multi-file configs)
                       # source = ~/.config/hypr/myColors.conf
@@ -376,6 +376,18 @@ in
                       binde=Mod5, F12, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
         '';
       systemd.user.services.waybar.Unit.After = lib.mkForce "graphical-session.target";
+      systemd.user.services.polkit-gnome-authentication-agent = {
+        Unit = {
+          Description = "Polkit GNOME authentication agent";
+        };
+        Install = {
+          WantedBy = [ "graphical-session.target" ];
+        };
+        Service = {
+          ExecStart = "${pkgs.polkit_gnome}/libexec/polkit-gnome-authentication-agent-1";
+          Restart = "on-failure";
+        };
+      };
       programs.waybar = {
         enable = true;
         systemd.enable = true;

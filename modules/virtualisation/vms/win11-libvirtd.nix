@@ -254,7 +254,7 @@ in
                 </disk>
                 <disk type="file" device="disk"> 
                   <driver name="qemu" type="qcow2"/>
-                  <source file="/home/christopher/.qcow-storage/win10/win10.qcow2"/>
+                  <source file="/home/christopher/.qcow-storage/emd/uncompressed/win10/win10.qcow2"/>
                   <backingStore/>
                   <target dev="vdc" bus="sata"/>
                   <address type="drive" controller="0" bus="0" target="0" unit="0"/>
@@ -284,6 +284,7 @@ in
               };
               script = ''
                 systemctl stop microvm@fancontrol.service
+                systemctl start home-christopher-.qcow\\x2dstorage-emd-uncompressed.mount
               '';
             };
             "10-${vm-name}-release-start-fancontrol-microvm" = {
@@ -294,6 +295,7 @@ in
               };
               script = ''
                 systemctl start microvm@fancontrol.service
+
               '';
             };
           };
