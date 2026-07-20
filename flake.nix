@@ -6,9 +6,10 @@
       "https://hyprland.cachix.org"
       "https://ai.cachix.org"
       "https://nix-community.cachix.org"
+      "https://cache.nixos-cuda.org"
     ];
   };
-  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-25.11";
+  inputs.nixpkgs.url = "github:NixOS/nixpkgs/nixos-26.05";
   inputs.nixpkgs-unstable.url = "github:NixOS/nixpkgs/nixos-unstable";
 
   # Fractional Scaling Fixes for Moonlight / Looking Glass Client
